@@ -1,0 +1,8 @@
+{
+    "name" : "node-red-contrib-rpi-ble",
+    "node-red" : {
+        "nodes": {
+            "scan": "scan.js"
+        }
+    }
+}
