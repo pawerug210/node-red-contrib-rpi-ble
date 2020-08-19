@@ -3,7 +3,12 @@
 	"version" : "0.0.3",
     "node-red" : {
         "nodes": {
-            "discover": "discover.js"
+            "discover": "nodes/discover/discover.js",
+            "device": "nodes/device/device.js",		
         }
-    }
+    },
+	"author": {
+		"name": "Pawel"
+	},
+	"license": "MIT"
 }

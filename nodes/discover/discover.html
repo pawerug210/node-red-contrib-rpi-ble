@@ -1,0 +1,39 @@
+<script type="text/javascript">
+    RED.nodes.registerType('discover',{
+        category: 'bluetooth',
+        color: '#a6bbcf',
+        defaults: {
+			name: {
+				value: ""
+			},
+			timeout: {
+				value: 5,
+				validate: function(v) {
+					return v >= 5;
+				},
+				required: true
+			}
+		},
+        inputs:1,
+        outputs:1,
+        icon: "bluetooth.png",
+        label: function() {
+            return this.name || "discover";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="discover">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+	<div class="form-row">
+        <label for="node-input-timeout"><i class="fa fa-tag"></i> Discovery time</label>
+        <input type="text" id="node-input-timeout" placeholder="Time in seconds">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="discover">
+    <p>A simple node that discovers available BLE devices</p>
+</script>
