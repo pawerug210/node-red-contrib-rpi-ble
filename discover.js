@@ -7,7 +7,6 @@ module.exports = function(RED) {
         const createBluetooth = node_ble.createBluetooth();
         const bluetooth = createBluetooth.bluetooth;
         const destroy = createBluetooth.destroy;
-        const adapter = await bluetooth.defaultAdapter();
 
         function discoverStart() {
             node.warn('Discovery started');
@@ -22,6 +21,7 @@ module.exports = function(RED) {
         
         node.on('input', async function(msg) {
             node.warn('input');
+            var adapter = await bluetooth.defaultAdapter();
             if (! await adapter.isDiscovering()) {
                 await adapter.startDiscovery();
                 discoverStart();
@@ -36,6 +36,7 @@ module.exports = function(RED) {
 
         node.on('close', async function(removed, done) {
             node.warn('close');
+            var adapter = await bluetooth.defaultAdapter();
             if (removed) {
                 // This node has been disabled/deleted
                 node.warn('removed');
