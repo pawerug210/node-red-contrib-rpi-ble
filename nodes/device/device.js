@@ -1,37 +1,35 @@
 const node_ble = require('node-ble');
 
 module.exports = function(RED) {
-    function DiscovernNode(config) {
+    function DeviceNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
         const createBluetooth = node_ble.createBluetooth();
         const bluetooth = createBluetooth.bluetooth;
         const destroy = createBluetooth.destroy;
 
-        function discoverStart() {
-            node.warn('Discovery started');
-			node.status({ fill: "blue", shape: "ring", text: "discovering" });
+        function connectingStart() {
+            node.warn('Connecting started');
+			node.status({ fill: "blue", shape: "ring", text: "connecting" });
 		}
 
-		function discoverStop() {
-            node.warn('Discovery stopped');
-            node.status({});
-            node.send({ payload: 1 });
+		function connectingStop(success) {
+            node.warn('Connecting stopped');
+            if (success) {
+                node.status({ fill: "green", shape: "ring", text: "connected" });
+                node.send({ payload: 1 });
+            } else {
+                node.status({ fill: "red", shape: "ring", text: "error" });
+                node.send({ payload: 0 });
+            }          
         }
         
         node.on('input', async function(msg) {
             node.warn('input');
+            connectingStart();
             var adapter = await bluetooth.defaultAdapter();
-            if (! await adapter.isDiscovering()) {
-                await adapter.startDiscovery();
-                discoverStart();
-            }
-            setTimeout(async function() {
-                var devices = await adapter.devices();
-                node.warn(devices);
-                await adapter.stopDiscovery();
-                discoverStop();
-			}, config.timeout * 1000);
+            var device = await adapter.waitDevice(config.address);
+            connectingStop(device != null);
         })
 
         node.on('close', async function(removed, done) {
@@ -44,12 +42,9 @@ module.exports = function(RED) {
                 // This node is being restarted
                 node.warn('restarted');
             }
-            if (await adapter.isDiscovering()) {
-                await adapter.stopDiscovery();
-            }
             destroy();
             done();
         })
     }
-    RED.nodes.registerType("discover", DiscovernNode);
+    RED.nodes.registerType("discover", DeviceNode);
 }
