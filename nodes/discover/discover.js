@@ -44,6 +44,7 @@ module.exports = function(RED) {
                 // This node is being restarted
                 node.warn('restarted');
             }
+            //todo: maybe useless if destroy after
             if (await adapter.isDiscovering()) {
                 await adapter.stopDiscovery();
             }

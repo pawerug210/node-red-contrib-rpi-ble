@@ -4,6 +4,8 @@ module.exports = function(RED) {
     function DeviceNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
+        node.status({});
+
         const createBluetooth = node_ble.createBluetooth();
         const bluetooth = createBluetooth.bluetooth;
         const destroy = createBluetooth.destroy;
@@ -28,13 +30,18 @@ module.exports = function(RED) {
             node.warn('input');
             connectingStart();
             var adapter = await bluetooth.defaultAdapter();
-            var device = await adapter.waitDevice(config.address);
+            var device = null;
+            try {
+                device = await adapter.waitDevice(config.address.toUpperCase(), config.timeout * 1000);
+                await device.connect();
+            } catch (error) {
+                node.warn("Connection Error" + error);
+            }
             connectingStop(device != null);
         })
 
         node.on('close', async function(removed, done) {
             node.warn('close');
-            var adapter = await bluetooth.defaultAdapter();
             if (removed) {
                 // This node has been disabled/deleted
                 node.warn('removed');
@@ -46,5 +53,5 @@ module.exports = function(RED) {
             done();
         })
     }
-    RED.nodes.registerType("discover", DeviceNode);
+    RED.nodes.registerType("device", DeviceNode);
 }
