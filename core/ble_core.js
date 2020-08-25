@@ -1,3 +1,5 @@
-var bleProvider = require('./BleProvider');
+const bleProvider = require('./BleProvider').getBleProvider();
+const bleDevicesManager = require('./BleDevicesManager').getBleDevicesManager();
 
-const BleProvider = new bleProvider()
+module.exports.bleProvider = bleProvider;
+module.exports.bleDevicesManager = bleDevicesManager;

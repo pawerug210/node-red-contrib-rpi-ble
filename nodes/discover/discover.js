@@ -1,5 +1,5 @@
-const bleProvider = require('./../../core/BleProvider').getBleProvider();
-bleProvider.initializeAdapter();
+const ble_core = require('./../../core/ble_core');
+const bleProvider = ble_core.bleProvider;
 
 module.exports = function(RED) {
     function DiscovernNode(config) {
@@ -19,6 +19,7 @@ module.exports = function(RED) {
         
         node.on('input', async function(msg) {
             node.warn('input');
+            await bleProvider.initializeAdapter();
             await bleProvider.startDiscovery();
             discoverStart();
             setTimeout(async function() {

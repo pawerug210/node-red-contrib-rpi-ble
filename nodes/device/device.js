@@ -1,14 +1,12 @@
-const node_ble = require('node-ble');
+const ble_core = require('./../../core/ble_core');
+const bleProvider = ble_core.bleProvider;
+const bleDevicesManager = ble_core.bleDevicesManager;
 
 module.exports = function(RED) {
     function DeviceNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
         node.status({});
-
-        const createBluetooth = node_ble.createBluetooth();
-        const bluetooth = createBluetooth.bluetooth;
-        const destroy = createBluetooth.destroy;
 
         function connectingStart() {
             node.warn('Connecting started');
@@ -30,14 +28,11 @@ module.exports = function(RED) {
             node.warn('input');
             connectingStart();
             var adapter = await bluetooth.defaultAdapter();
-            var device = null;
-            try {
-                device = await adapter.waitDevice(config.address.toUpperCase(), config.timeout * 1000);
-                await device.connect();
-            } catch (error) {
-                node.warn("Connection Error" + error);
-            }
+            bleProvider.waitDevice(config.address, config.timeout * 1000);
             connectingStop(device != null);
+            if (device != null) {
+                bleDevicesManager.registerDevice(device);
+            }
         })
 
         node.on('close', async function(removed, done) {
@@ -49,7 +44,7 @@ module.exports = function(RED) {
                 // This node is being restarted
                 node.warn('restarted');
             }
-            destroy();
+            bleProvider.destroy();
             done();
         })
     }
