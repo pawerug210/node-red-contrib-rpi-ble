@@ -1,5 +1,5 @@
 const ble_core = require('./../../core/ble_core');
-const bleProvider = ble_core.bleProvider;
+const bleProvider = ble_core.bleProvider();
 
 module.exports = function(RED) {
     function DiscovernNode(config) {

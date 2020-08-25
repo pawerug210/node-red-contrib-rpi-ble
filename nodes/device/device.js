@@ -1,6 +1,6 @@
 const ble_core = require('./../../core/ble_core');
-const bleProvider = ble_core.bleProvider;
-const bleDevicesManager = ble_core.bleDevicesManager;
+const bleProvider = ble_core.bleProvider();
+const bleDevicesManager = ble_core.bleDevicesManager();
 
 module.exports = function(RED) {
     function DeviceNode(config) {
@@ -27,11 +27,11 @@ module.exports = function(RED) {
         node.on('input', async function(msg) {
             node.warn('input');
             connectingStart();
-            var adapter = await bluetooth.defaultAdapter();
-            bleProvider.waitDevice(config.address, config.timeout * 1000);
+            var adapter = await bleProvider.defaultAdapter();
+            var device = await bleProvider.waitDevice(config.address, config.timeout * 1000);
             connectingStop(device != null);
             if (device != null) {
-                bleDevicesManager.registerDevice(device);
+                await bleDevicesManager.registerDevice(device);
             }
         })
 

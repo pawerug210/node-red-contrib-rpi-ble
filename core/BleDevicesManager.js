@@ -39,7 +39,7 @@ class BleDevicesManager {
 }
 
 var instance = null;
-module.exports.BleDevicesManager = function() {
+module.exports.getBleDevicesManager = function() {
     if (!instance) {
         console.log("Creating ble devices manager");
         instance = new BleDevicesManager();

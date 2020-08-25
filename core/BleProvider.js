@@ -8,7 +8,7 @@ class BleProvider {
     }
 
     async initializeAdapter(adapter = null) {
-        if (this.adapter != null) {
+        if (this.adapter == null) {
             if (adapter == null) {
                 console.log("creating default adapter");
                 this.adapter = await this.bluetooth.defaultAdapter();
@@ -49,10 +49,6 @@ class BleProvider {
         console.log("destroying");
         this.destroy();
     }
-}
-
-module.exports.getBleProvider = function() {
-    return new BleProvider();
 }
 
 var instance = null;
