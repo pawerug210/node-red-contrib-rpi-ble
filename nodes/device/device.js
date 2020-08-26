@@ -27,7 +27,7 @@ module.exports = function(RED) {
         node.on('input', async function(msg) {
             node.warn('input');
             connectingStart();
-            var adapter = await bleProvider.defaultAdapter();
+            var adapter = await bleProvider.initializeAdapter();
             var device = await bleProvider.waitDevice(config.address, config.timeout * 1000);
             connectingStop(device != null);
             if (device != null) {

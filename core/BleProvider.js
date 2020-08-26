@@ -37,7 +37,7 @@ class BleProvider {
     async waitDevice(address, timeout) {
         var device = null;
         try {
-            device = await adapter.waitDevice(address.toUpperCase(), timeout);
+            device = await this.adapter.waitDevice(address.toUpperCase(), timeout);
             await device.connect();
         } catch (error) {
             console.log("Connection Error" + error);
