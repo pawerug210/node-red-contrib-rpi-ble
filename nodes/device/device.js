@@ -6,6 +6,7 @@ module.exports = function(RED) {
     function DeviceNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
+        node.warn("Creating DeviceNode");
         node.status({});
 
         function connectingStart() {

@@ -7,6 +7,7 @@ class BleDevice {
 
 class BleDevicesManager {
     constructor() {
+        console.log("Creating BleDeviceManager");
         this._devices = {}
     }
 

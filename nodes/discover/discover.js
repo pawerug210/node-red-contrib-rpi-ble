@@ -5,6 +5,7 @@ module.exports = function(RED) {
     function DiscovernNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
+        node.warn("Creating DiscoverNode");
 
         function discoverStart() {
             node.warn('Discovery started');

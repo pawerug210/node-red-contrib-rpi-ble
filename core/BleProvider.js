@@ -1,6 +1,7 @@
 class BleProvider {
     constructor() {
         const node_ble = require('node-ble');
+        console.log("Creating BleProvider");
         var createBluetooth = node_ble.createBluetooth();
         this.bluetooth = createBluetooth.bluetooth;
         this.destroy = createBluetooth.destroy;
