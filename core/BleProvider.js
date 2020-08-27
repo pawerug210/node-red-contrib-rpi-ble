@@ -42,14 +42,22 @@ class BleProvider {
             await device.connect();
         } catch (error) {
             console.log("Connection Error" + error);
+            device = null;
         }
         return device;
     }
 
     destroy() {
         console.log("destroying");
-        this.destroy();
+        try {
+            this.destroy();
+        }
+        catch (error) {
+            console.log("Connection Error" + error);
+        }
+        instance = null;
     }
+
 }
 
 var instance = null;

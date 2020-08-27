@@ -1,6 +1,6 @@
 const ble_core = require('./../../core/ble_core');
 const bleProvider = ble_core.bleProvider();
-
+    
 module.exports = function(RED) {
     function DiscovernNode(config) {
         RED.nodes.createNode(this, config);
@@ -39,8 +39,8 @@ module.exports = function(RED) {
                 node.warn('restarted');
             }
             //todo: maybe useless if destroy after
-            await bleProvider.stopDiscovery();
-            bleProvider.destroy();
+            //await bleProvider.stopDiscovery();
+            //bleProvider.destroy();
             done();
         })
     }

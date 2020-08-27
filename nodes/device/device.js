@@ -45,7 +45,7 @@ module.exports = function(RED) {
                 // This node is being restarted
                 node.warn('restarted');
             }
-            bleProvider.destroy();
+            //bleProvider.destroy();
             done();
         })
     }
