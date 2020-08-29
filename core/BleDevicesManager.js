@@ -37,6 +37,31 @@ class BleDevicesManager {
         console.log("Device " + address + " not registered");
         return null;
     }
+
+    async getService(deviceAddress, serviceUuid) {
+        var service = null;
+        try {
+            var device = await this.getDevice(deviceAddress);
+            var serviceTmp = await device.gatt.getPrimaryService(serviceUuid.toLowerCase());
+            service = serviceTmp;
+        } catch(error) {
+            console.log('Getting service error: ' + error);
+        }
+        return service;
+    }
+
+    async getCharacteristic(deviceAddress, serviceUuid, characteristicUuid) {
+        var characteristic = null;
+        try {
+            var device = await this.getDevice(deviceAddress);
+            var service = await device.gatt.getPrimaryService(serviceUuid.toLowerCase());
+            var characteristicTmp = await service.getCharacteristic(characteristicUuid.toLowerCase());
+            characteristic = characteristicTmp
+        } catch(error) {
+            console.log('Getting characteristic error: ' + error);
+        }
+        return characteristic;
+    }
 }
 
 var instance = null;

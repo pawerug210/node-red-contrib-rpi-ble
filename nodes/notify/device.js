@@ -21,6 +21,7 @@ module.exports = function(RED) {
                 node.send({ payload: 1 });
             } else {
                 node.status({ fill: "red", shape: "ring", text: "error" });
+                node.send({ payload: 0 });
             }          
         }
         

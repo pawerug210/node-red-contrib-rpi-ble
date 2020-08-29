@@ -4,7 +4,9 @@
     "node-red" : {
         "nodes": {
             "discover": "nodes/discover/discover.js",
-            "device": "nodes/device/device.js"		
+            "device": "nodes/device/device.js",
+            "characteristic": "nodes/characteristic/characteristic.js",
+            "service": "nodes/service/service.js"		
         }
     },
 	"author": {

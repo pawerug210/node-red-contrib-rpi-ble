@@ -1,0 +1,40 @@
+<script type="text/javascript">
+    RED.nodes.registerType('service',{
+        category: 'bluetooth',
+        color: '#a6bbcf',
+        defaults: {
+			name: {
+				value: ""
+			},
+			UUID: {
+				value: "",
+				validate: function(uuid) {
+                    var regexp = /[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}/;         
+					return regexp.test(uuid);
+				},
+				required: true
+            }
+		},
+        inputs:1,
+        outputs:1,
+        icon: "bluetooth.png",
+        label: function() {
+            return this.name || "service";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="service">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+	<div class="form-row">
+        <label for="node-input-uuid"><i class="fa fa-tag"></i> UUID</label>
+        <input type="text" id="node-input-uuid" placeholder="123e4567-e89b-12d3-a456-426614174000">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="service">
+    <p>A simple node to find BLE device service.</p>
+</script>
