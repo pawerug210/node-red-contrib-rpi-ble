@@ -1,0 +1,35 @@
+<script type="text/javascript">
+    RED.nodes.registerType('notify',{
+        category: 'bluetooth',
+        color: '#a6bbcf',
+        defaults: {
+			name: {
+                value: ""
+            },
+            period: {
+				value: ""
+			}
+		},
+        inputs:1,
+        outputs:1,
+        icon: "bluetooth.png",
+        label: function() {
+            return this.name || "notify";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="notify">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+	<div class="form-row">
+        <label for="node-input-period"><i class="fa fa-tag"></i> Subscribe period</label>
+        <input type="text" id="node-input-period" placeholder="Subscribe for">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="notify">
+    <p>A simple node to subscribe to characteristic notifications</p>
+</script>

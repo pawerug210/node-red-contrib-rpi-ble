@@ -62,6 +62,28 @@ class BleDevicesManager {
         }
         return characteristic;
     }
+
+    async subscribeCharacteristic(deviceAddress, serviceUuid, characteristicUuid, notifyFunc) {
+        var success = false;
+        var characteristic = await this.getCharacteristic(deviceAddress, serviceUuid, characteristicUuid);
+        if (characteristic != null) {
+            if (await characteristic.isNotifying()) {
+                await characteristic.startNotifications();
+                characteristic.on('valuechanged', notifyFunc);
+
+            } else {
+                console.log('Characteristic not notifying');
+            }
+        }
+        return success; 
+    }
+
+    async stopSubscribing(deviceAddress, serviceUuid, characteristicUuid) {
+        var characteristic = await this.getCharacteristic(deviceAddress, serviceUuid, characteristicUuid);
+        if (characteristic != null) {
+            await characteristic.stopNotifications();
+        }
+    }
 }
 
 var instance = null;

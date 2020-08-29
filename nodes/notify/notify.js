@@ -1,5 +1,4 @@
 const ble_core = require('./../../core/ble_core');
-const bleProvider = ble_core.bleProvider();
 const bleDevicesManager = ble_core.bleDevicesManager();
 
 module.exports = function(RED) {
@@ -9,30 +8,34 @@ module.exports = function(RED) {
         node.warn("Creating DeviceNode");
         node.status({});
 
-        function connectingStart() {
-            node.warn('Connecting started');
-			node.status({ fill: "blue", shape: "ring", text: "connecting" });
-		}
-
-		function connectingStop(success) {
-            node.warn('Connecting stopped');
-            if (success) {
-                node.status({ fill: "green", shape: "ring", text: "connected" });
-                node.send({ payload: 1 });
-            } else {
-                node.status({ fill: "red", shape: "ring", text: "error" });
-                node.send({ payload: 0 });
-            }          
+        function notify(buffer) {
+            node.send({ payload: buffer });
         }
         
+        function notifyStatus(success) {
+            if (success) {
+                node.status({ fill: "green", shape: "ring", text: "subscribed" });
+            } else {
+                node.status({});
+            }          
+        }
+
         node.on('input', async function(msg) {
             node.warn('input');
-            connectingStart();
-            var adapter = await bleProvider.initializeAdapter();
-            var device = await bleProvider.waitDevice(config.address, config.timeout * 1000);
-            connectingStop(device != null);
-            if (device != null) {
-                await bleDevicesManager.registerDevice(device);
+            var subscribeSuccess = await bleDevicesManager.subscribeCharacteristic(
+                msg._deviceAddress, 
+                msg._serviceUuid, 
+                msg._characteristicUuid,
+                notify);
+            notifyStatus(subscribeSuccess);
+            if (config.period > 0) {
+                setTimeout(async function() {
+                    await bleDevicesManager.stopSubscribing(
+                        msg._deviceAddress, 
+                        msg._serviceUuid, 
+                        msg._characteristicUuid);
+                    notifyStatus(false);
+                }, config.period * 1000);
             }
         })
 
