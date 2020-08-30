@@ -67,13 +67,9 @@ class BleDevicesManager {
         var success = false;
         var characteristic = await this.getCharacteristic(deviceAddress, serviceUuid, characteristicUuid);
         if (characteristic != null) {
-            if (await characteristic.isNotifying()) {
-                await characteristic.startNotifications();
-                characteristic.on('valuechanged', notifyFunc);
-
-            } else {
-                console.log('Characteristic not notifying');
-            }
+            //todo: check if it has notify flag
+            await characteristic.startNotifications();
+            characteristic.on('valuechanged', notifyFunc);
         }
         return success; 
     }
