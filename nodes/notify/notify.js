@@ -2,10 +2,10 @@ const ble_core = require('./../../core/ble_core');
 const bleDevicesManager = ble_core.bleDevicesManager();
 
 module.exports = function(RED) {
-    function DeviceNode(config) {
+    function NotifyNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
-        node.warn("Creating DeviceNode");
+        node.warn("Creating NotifyNode");
         node.status({});
 
         function notify(buffer) {
@@ -52,5 +52,5 @@ module.exports = function(RED) {
             done();
         })
     }
-    RED.nodes.registerType("device", DeviceNode);
+    RED.nodes.registerType("notify", NotifyNode);
 }
