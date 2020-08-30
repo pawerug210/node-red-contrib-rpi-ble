@@ -14,14 +14,12 @@ module.exports = function(RED) {
 			node.status({ fill: "blue", shape: "ring", text: "connecting" });
 		}
 
-		function connectingStop(success) {
+		function connectingStatus(success) {
             node.warn('Connecting stopped');
             if (success) {
                 node.status({ fill: "green", shape: "ring", text: "connected" });
-                node.send({ payload: 1 });
             } else {
                 node.status({ fill: "red", shape: "ring", text: "error" });
-                node.send({ payload: 0 });
             }          
         }
         
@@ -30,10 +28,14 @@ module.exports = function(RED) {
             connectingStart();
             var adapter = await bleProvider.initializeAdapter();
             var device = await bleProvider.waitDevice(config.address, config.timeout * 1000);
-            connectingStop(device != null);
-            if (device != null) {
+            var connectionSuccess = device != null;
+            if (connectionSuccess) {
                 await bleDevicesManager.registerDevice(device);
+                node.send({ payload: 1, 
+                    _deviceAddress: config.address
+                });
             }
+            connectingStatus(connectionSuccess);
         })
 
         node.on('close', async function(removed, done) {
