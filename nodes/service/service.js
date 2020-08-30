@@ -18,13 +18,13 @@ module.exports = function(RED) {
         
         node.on('input', async function(msg) {
             node.warn('input');
-            var service = await bleDevicesManager.getService(msg._deviceAddress, config.serviceUuid);
+            var service = await bleDevicesManager.getService(msg._deviceAddress, config.uuid);
             var serviceAvailable = service != null;
             serviceStatus(serviceAvailable);
             if (serviceAvailable) {
                 node.send({ payload: 1, 
                     _deviceAddress: msg._deviceAddress, 
-                    _serviceUuid: config.serviceUuid
+                    _serviceUuid: config.uuid
                 });
             }
         })
