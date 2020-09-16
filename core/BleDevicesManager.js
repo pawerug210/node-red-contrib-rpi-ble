@@ -109,12 +109,9 @@ class BleDevicesManager {
                     ' from service ' + serviceUuid + 
                     ' from device ' + deviceAddress);
         if (characteristic != null) {
-<<<<<<< Updated upstream
-=======
             console.info('Stopping notifications for characteristic ' + characteristicUuid +
                         ' from service ' + serviceUuid + 
                         ' from device ' + deviceAddress);
->>>>>>> Stashed changes
             await characteristic.stopNotifications();
         }
     }
