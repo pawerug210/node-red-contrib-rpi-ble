@@ -68,8 +68,13 @@ class BleDevicesManager {
         var characteristic = await this.getCharacteristic(deviceAddress, serviceUuid, characteristicUuid);
         if (characteristic != null) {
             //todo: check if it has notify flag
-            await characteristic.startNotifications();
-            characteristic.on('valuechanged', notifyFunc);
+            
+            if (!(await characteristic.isNotifying())) {
+                await characteristic.startNotifications();
+                console.log("Setting notify function");
+                characteristic.on('valuechanged', notifyFunc);
+            }
+            success = true;
         }
         return success; 
     }
@@ -84,8 +89,8 @@ class BleDevicesManager {
 
 var instance = null;
 module.exports.getBleDevicesManager = function() {
+    console.debug("Requesting BleDeviceManager");
     if (!instance) {
-        console.log("Creating ble devices manager");
         instance = new BleDevicesManager();
     }
     return instance;
