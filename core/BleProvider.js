@@ -1,7 +1,7 @@
 class BleProvider {
     constructor() {
         const node_ble = require('node-ble');
-        console.log("Creating BleProvider");
+        console.debug("Creating BleProvider");
         var createBluetooth = node_ble.createBluetooth();
         this.bluetooth = createBluetooth.bluetooth;
         this.destroy = createBluetooth.destroy;
@@ -10,50 +10,65 @@ class BleProvider {
 
     async initializeAdapter(adapter = null) {
         if (this.adapter == null) {
-            if (adapter == null) {
-                console.log("creating default adapter");
-                this.adapter = await this.bluetooth.defaultAdapter();
-            } else {
-                console.log("creating specific adapter: " + adapter);
-                this.adapter = await this.bluetooth.getAdapter(adapter);
+            try {
+                if (adapter == null) {
+                    console.info("Creating default adapter");
+                    this.adapter = await this.bluetooth.defaultAdapter();
+                } else {
+                    console.info("Creating specific adapter: " + adapter);
+                    this.adapter = await this.bluetooth.getAdapter(adapter);
+                }
             }
+            catch (error) {
+                console.warn("Creating adapter error; " + error);
+            }
+        } else {
+            console.debug("adapter already initialized");
         }
-        console.log("adapter initialized");
         return this.adapter;
     }
 
     async startDiscovery() {
         //todo: timeout
-        if (! await this.adapter.isDiscovering()) {
+        if (! (await this.adapter.isDiscovering())) {
+            console.info('Starting adapter discovery');
             await this.adapter.startDiscovery();
+        } else {
+            console.debug('Trying to start adapter discovery but it was already discovering');
         }
     }
 
     async stopDiscovery() {
         if (await this.adapter.isDiscovering()) {
+            console.info('Stopping adapter discovery');
             await this.adapter.stopDiscovery();
+        } else {
+            console.debug('Trying to stop adapter discovery but it was not in discovering');
         }
     }
 
     async waitDevice(address, timeout) {
+        address = address.toUpperCase();
         var device = null;
+
+        console.info('Requesting connection with device ' + address);
         try {
-            device = await this.adapter.waitDevice(address.toUpperCase(), timeout);
+            device = await this.adapter.waitDevice(address, timeout);
+            console.info('Device ' + address +' found, trying to connect...');
             await device.connect();
         } catch (error) {
-            console.log("Connection Error" + error);
+            console.warn('Connection to device ' + address + ' error; ' + error);
             device = null;
         }
         return device;
     }
 
     destroy() {
-        console.log("destroying");
+        console.debug("Requesting BT stream destruction");
         try {
             this.destroy();
-        }
-        catch (error) {
-            console.log("Connection Error" + error);
+        } catch (error) {
+            console.warn("Destruction Error; " + error);
         }
         instance = null;
     }
