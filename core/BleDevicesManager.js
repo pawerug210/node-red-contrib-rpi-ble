@@ -50,7 +50,7 @@ class BleDevicesManager {
     async getService(deviceAddress, serviceUuid) {
         var service = null;
 
-        console.debug('Requesting service ' + serviceUuid + ' from device ' + address);
+        console.debug('Requesting service ' + serviceUuid + ' from device ' + deviceAddress);
         try {
             var device = await this.getDevice(deviceAddress);
             var serviceTmp = await device.gatt.getPrimaryService(serviceUuid.toLowerCase());
@@ -66,7 +66,7 @@ class BleDevicesManager {
     async getCharacteristic(deviceAddress, serviceUuid, characteristicUuid) {
         var characteristic = null;
 
-        console.debug('Requesting service ' + serviceUuid + ' from device ' + address);
+        console.debug('Requesting service ' + serviceUuid + ' from device ' + deviceAddress);
         try {
             var device = await this.getDevice(deviceAddress);
             var service = await device.gatt.getPrimaryService(serviceUuid.toLowerCase());
@@ -94,6 +94,11 @@ class BleDevicesManager {
                             ' from service ' + serviceUuid + 
                             ' from device ' + deviceAddress);
                 await characteristic.startNotifications();
+            }
+            if (!characteristic.listeners('valuechanged').includes(notifyFunc)) {
+                console.info('Registering callback for notifications on characteristic ' + characteristicUuid +
+                            ' from service ' + serviceUuid + 
+                            ' from device ' + deviceAddress);
                 characteristic.on('valuechanged', notifyFunc);
             }
             success = true;
