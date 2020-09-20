@@ -47,7 +47,7 @@ class BleProvider {
         }
     }
 
-    async waitDevice(address, timeout) {
+    async waitDevice(address, timeout, connectedFunc, disconnectedFunc) {
         address = address.toUpperCase();
         var device = null;
 
@@ -55,6 +55,8 @@ class BleProvider {
         try {
             device = await this.adapter.waitDevice(address, timeout);
             console.info('Device ' + address +' found, trying to connect...');
+            device.on('connect', connectedFunc);
+            device.on('disconnect', disconnectedFunc);
             await device.connect();
         } catch (error) {
             console.warn('Connection to device ' + address + ' error; ' + error);

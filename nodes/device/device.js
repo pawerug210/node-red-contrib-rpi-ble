@@ -14,19 +14,24 @@ module.exports = function(RED) {
 			node.status({ fill: 'blue', shape: 'ring', text: 'connecting' });
 		}
 
-		function connectingStatus(success) {
-            if (success) {
-                node.status({ fill: 'green', shape: 'ring', text: 'connected' });
-            } else {
-                node.status({ fill: 'red', shape: 'ring', text: 'error' });
-            }          
+		function connected(status) {
+            console.info('Device ' + config.address + ' was connected');
+            node.status({ fill: 'green', shape: 'ring', text: 'connected' });        
+        }
+
+        function disconnected(status) {
+            console.info('Device ' + config.address + ' was disconnected');
+            node.status({ fill: 'red', shape: 'ring', text: 'disconnected' });       
         }
         
         node.on('input', async function(msg) {
             console.debug('Received input message: ' + msg);
             connectingStart();
             var adapter = await bleProvider.initializeAdapter();
-            var device = await bleProvider.waitDevice(config.address, config.timeout * 1000);
+            var device = await bleProvider.waitDevice(config.address, 
+                config.timeout * 1000,
+                connected,
+                disconnected);
             var connectionSuccess = device != null;
             if (connectionSuccess) {
                 await bleDevicesManager.registerDevice(device);
@@ -34,7 +39,6 @@ module.exports = function(RED) {
                     _deviceAddress: config.address
                 });
             }
-            connectingStatus(connectionSuccess);
         })
 
         node.on('close', async function(removed, done) {
