@@ -12,9 +12,17 @@ module.exports = function(RED) {
         function connectingStart() {
             console.debug('Connecting started');
 			node.status({ fill: 'blue', shape: 'ring', text: 'connecting' });
-		}
+        }
+        
+        function connectingStatus(success) {
+            if (success) {
+                node.status({ fill: 'green', shape: 'ring', text: 'connected' });
+            } else {
+                node.status({ fill: 'red', shape: 'ring', text: 'error' });
+            }          
+        }
 
-		function connected(status) {
+		function connected() {
             console.info('Device ' + config.address + ' was connected');
             node.status({ fill: 'green', shape: 'ring', text: 'connected' });        
         }
@@ -27,18 +35,21 @@ module.exports = function(RED) {
         node.on('input', async function(msg) {
             console.debug('Received input message: ' + msg);
             connectingStart();
-            var adapter = await bleProvider.initializeAdapter();
+            var _ = await bleProvider.initializeAdapter();
             var device = await bleProvider.waitDevice(config.address, 
                 config.timeout * 1000,
-                connected,
                 disconnected);
             var connectionSuccess = device != null;
             if (connectionSuccess) {
+                console.info('Device ' + await device.toString() + ' was connected');
+                device.once('disconnect', disconnected);
+                connected();
                 await bleDevicesManager.registerDevice(device);
                 node.send({ payload: 1, 
                     _deviceAddress: config.address
                 });
             }
+            connectingStatus(connectionSuccess);
         })
 
         node.on('close', async function(removed, done) {
@@ -49,7 +60,8 @@ module.exports = function(RED) {
                 // This node is being restarted
                 console.debug('Node is closing as it going to be restarted');
             }
-            //bleProvider.destroy();
+            var { device, _, _ } = await bleDevicesManager.getDevice(config.address);
+            device.removeListener('disconnect', disconnected);
             done();
         })
     }
