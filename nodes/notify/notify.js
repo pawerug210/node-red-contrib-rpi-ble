@@ -23,7 +23,7 @@ module.exports = function (RED) {
 
         node.on('input', async function (msg) {
             console.debug('Received input message: ' + msg);
-            characteristic = await this.getCharacteristic(msg._deviceAddress,
+            characteristic = await bleDevicesManager.getCharacteristic(msg._deviceAddress,
                 msg._serviceUuid,
                 msg._characteristicUuid);
 
