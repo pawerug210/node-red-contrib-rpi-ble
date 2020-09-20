@@ -5,19 +5,19 @@ module.exports = function(RED) {
     function ServiceNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
-        node.warn("Creating ServiceNode");
+        console.log('Creating ServiceNode');
         node.status({});
 
 		function serviceStatus(available) {
             if (available) {
-                node.status({ fill: "green", shape: "ring", text: "available" });
+                node.status({ fill: 'green', shape: 'ring', text: 'available' });
             } else {
-                node.status({ fill: "red", shape: "ring", text: "error" });
+                node.status({ fill: 'red', shape: 'ring', text: 'error' });
             }          
         }
         
         node.on('input', async function(msg) {
-            node.warn('input');
+            console.debug('Received input message: ' + msg);
             var service = await bleDevicesManager.getService(msg._deviceAddress, config.uuid);
             var serviceAvailable = service != null;
             serviceStatus(serviceAvailable);
@@ -30,13 +30,12 @@ module.exports = function(RED) {
         })
 
         node.on('close', async function(removed, done) {
-            node.warn('close');
             if (removed) {
                 // This node has been disabled/deleted
-                node.warn('removed');
+                console.debug('Node is closing as it got removed');
             } else {
                 // This node is being restarted
-                node.warn('restarted');
+                console.debug('Node is closing as it going to be restarted');
             }
             //bleProvider.destroy();
             done();

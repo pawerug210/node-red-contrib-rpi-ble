@@ -5,19 +5,19 @@ module.exports = function(RED) {
     function CharacteristicNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
-        node.warn("Creating CharacteristicNode");
+        console.debug('Creating CharacteristicNode');
         node.status({});
 
 		function characteristicStatus(available) {
             if (available) {
-                node.status({ fill: "green", shape: "ring", text: "available" });
+                node.status({ fill: 'green', shape: 'ring', text: 'available' });
             } else {
-                node.status({ fill: "red", shape: "ring", text: "error" });
+                node.status({ fill: 'red', shape: 'ring', text: 'error' });
             }          
         }
         
         node.on('input', async function(msg) {
-            node.warn('input');
+            console.debug('Received input message: ' + msg);
             var characteristic = await bleDevicesManager.getCharacteristic(msg._deviceAddress, msg._serviceUuid, config.uuid);
             var characteristicAvailable = characteristic != null;
             characteristicStatus(characteristicAvailable);
@@ -31,17 +31,16 @@ module.exports = function(RED) {
         })
 
         node.on('close', async function(removed, done) {
-            node.warn('close');
             if (removed) {
                 // This node has been disabled/deleted
-                node.warn('removed');
+                console.debug('Node is closing as it got removed');
             } else {
                 // This node is being restarted
-                node.warn('restarted');
+                console.debug('Node is closing as it going to be restarted');
             }
             //bleProvider.destroy();
             done();
         })
     }
-    RED.nodes.registerType("characteristic", CharacteristicNode);
+    RED.nodes.registerType('characteristic', CharacteristicNode);
 }

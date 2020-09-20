@@ -5,21 +5,21 @@ module.exports = function(RED) {
     function DiscovernNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
-        node.warn("Creating DiscoverNode");
+        console.debug('Creating DiscoverNode');
 
         function discoverStart() {
-            node.warn('Discovery started');
-			node.status({ fill: "blue", shape: "ring", text: "discovering" });
+            console.debug('Discovery started');
+			node.status({ fill: 'blue', shape: 'ring', text: 'discovering' });
 		}
 
 		function discoverStop() {
-            node.warn('Discovery stopped');
+            console.debug('Discovery stopped');
             node.status({});
             node.send({ payload: 1 });
         }
         
         node.on('input', async function(msg) {
-            node.warn('input');
+            console.debug('Received input message: ' + msg);
             await bleProvider.initializeAdapter();
             await bleProvider.startDiscovery();
             discoverStart();
@@ -30,13 +30,12 @@ module.exports = function(RED) {
         })
 
         node.on('close', async function(removed, done) {
-            node.warn('close');
             if (removed) {
                 // This node has been disabled/deleted
-                node.warn('removed');
+                console.debug('Node is closing as it got removed');
             } else {
                 // This node is being restarted
-                node.warn('restarted');
+                console.debug('Node is closing as it going to be restarted');
             }
             //todo: maybe useless if destroy after
             //await bleProvider.stopDiscovery();

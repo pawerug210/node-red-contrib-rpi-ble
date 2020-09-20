@@ -5,7 +5,7 @@ module.exports = function(RED) {
     function NotifyNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
-        node.warn("Creating NotifyNode");
+        console.debug('Creating NotifyNode');
         node.status({});
 
         function notify(buffer) {
@@ -14,14 +14,14 @@ module.exports = function(RED) {
         
         function notifyStatus(success) {
             if (success) {
-                node.status({ fill: "green", shape: "ring", text: "subscribed" });
+                node.status({ fill: 'green', shape: 'ring', text: 'subscribed' });
             } else {
                 node.status({});
             }          
         }
 
         node.on('input', async function(msg) {
-            node.warn('input');
+            console.debug('Received input message: ' + msg);
             var subscribeSuccess = await bleDevicesManager.subscribeCharacteristic(
                 msg._deviceAddress, 
                 msg._serviceUuid, 
@@ -40,13 +40,12 @@ module.exports = function(RED) {
         })
 
         node.on('close', async function(removed, done) {
-            node.warn('close');
             if (removed) {
                 // This node has been disabled/deleted
-                node.warn('removed');
+                console.debug('Node is closing as it got removed');
             } else {
                 // This node is being restarted
-                node.warn('restarted');
+                console.debug('Node is closing as it going to be restarted');
             }
             //bleProvider.destroy();
             done();

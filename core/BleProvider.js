@@ -1,7 +1,7 @@
 class BleProvider {
     constructor() {
         const node_ble = require('node-ble');
-        console.debug("Creating BleProvider");
+        console.debug('Creating BleProvider');
         var createBluetooth = node_ble.createBluetooth();
         this.bluetooth = createBluetooth.bluetooth;
         this.destroy = createBluetooth.destroy;
@@ -12,18 +12,18 @@ class BleProvider {
         if (this.adapter == null) {
             try {
                 if (adapter == null) {
-                    console.info("Creating default adapter");
+                    console.info('Creating default adapter');
                     this.adapter = await this.bluetooth.defaultAdapter();
                 } else {
-                    console.info("Creating specific adapter: " + adapter);
+                    console.info('Creating specific adapter: ' + adapter);
                     this.adapter = await this.bluetooth.getAdapter(adapter);
                 }
             }
             catch (error) {
-                console.warn("Creating adapter error; " + error);
+                console.warn('Creating adapter error; ' + error);
             }
         } else {
-            console.debug("adapter already initialized");
+            console.debug('adapter already initialized');
         }
         return this.adapter;
     }
@@ -64,11 +64,11 @@ class BleProvider {
     }
 
     destroy() {
-        console.debug("Requesting BT stream destruction");
+        console.debug('Requesting BT stream destruction');
         try {
             this.destroy();
         } catch (error) {
-            console.warn("Destruction Error; " + error);
+            console.warn('Destruction Error; ' + error);
         }
         instance = null;
     }
@@ -78,7 +78,7 @@ class BleProvider {
 var instance = null;
 module.exports.getBleProvider = function() {
     if (!instance) {
-        console.log("Creating ble provider");
+        console.log('Creating ble provider');
         instance = new BleProvider();
     }
     return instance;
