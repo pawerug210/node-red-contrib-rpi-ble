@@ -54,7 +54,7 @@ class BleProvider {
         console.info('Requesting connection with device ' + address);
         try {
             device = await this.adapter.waitDevice(address, timeout);
-            console.info('Device ' + address +' found, trying to connect...');
+            console.info('Device ' + address +' found, trying to connect...');           
             await device.connect();
         } catch (error) {
             console.warn('Connection to device ' + address + ' error; ' + error);
