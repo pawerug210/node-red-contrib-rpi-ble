@@ -20,7 +20,7 @@ class BleDevicesManager {
     async registerDevice(device) {
         if (device != null) {
             var deviceAddress = (await device.getAddress()).toUpperCase();
-            if (!isDeviceRegistered(address)) {
+            if (!this.isDeviceRegistered(deviceAddress)) {
                 console.info('Registering new device with address ' + deviceAddress);
                 this._devices[deviceAddress] = new BleDevice(device, await device.gatt());
             } else {
@@ -35,7 +35,7 @@ class BleDevicesManager {
         address = address.toUpperCase();
 
         console.debug('Requesting device with address ' + address);
-        if (isDeviceRegistered(address)) {
+        if (this.isDeviceRegistered(address)) {
             console.debug('Device ' + address + ' is registered in Device Manager');
             var bleDevice = this._devices[address];
             return {
