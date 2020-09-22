@@ -3,9 +3,11 @@ const bleDevicesManager = ble_core.bleDevicesManager();
 
 module.exports = function(RED) {
     function ServiceNode(config) {
+        console.debug('Creating ServiceNode');
         RED.nodes.createNode(this, config);
+
         var node = this;
-        console.log('Creating ServiceNode');
+        
         node.status({});
 
 		function serviceStatus(available) {
@@ -41,5 +43,5 @@ module.exports = function(RED) {
             done();
         })
     }
-    RED.nodes.registerType("service", ServiceNode);
+    RED.nodes.registerType('service', ServiceNode);
 }

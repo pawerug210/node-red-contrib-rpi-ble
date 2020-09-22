@@ -4,9 +4,13 @@ const bleDevicesManager = ble_core.bleDevicesManager();
 
 module.exports = function (RED) {
     function DeviceNode(config) {
-        RED.nodes.createNode(this, config);
-        var node = this;
         console.debug('Creating DeviceNode');
+        RED.nodes.createNode(this, config);        
+
+        var node = this;
+        var connectionTimeoutInMs = config.timeout * 1000;
+        var deviceAddress = config.address.toUpperCase();
+
         node.status({});
 
         function connectingStart() {
@@ -19,28 +23,27 @@ module.exports = function (RED) {
                 node.status({ fill: 'green', shape: 'ring', text: 'connected' });
             } else {
                 node.status({ fill: 'red', shape: 'ring', text: 'error' });
-                node.send([null, { payload: 1, timeout: config.timeout * 1000 }]);
+                node.send([null, { payload: 1, timeout: connectionTimeoutInMs }]);
             }
         }
 
         function connected() {
-            console.info('Device ' + config.address + ' was connected');
+            console.info('Device ' + deviceAddress + ' was connected');
             node.status({ fill: 'green', shape: 'ring', text: 'connected' });
         }
 
         function disconnected(status) {
-            console.info('Device ' + config.address + ' was disconnected');
+            console.info('Device ' +  + ' was disconnected');
             node.status({ fill: 'red', shape: 'ring', text: 'disconnected' });
-            node.send([null, { payload: 1, timeout: config.timeout * 1000 }]);
+            node.send([null, { payload: 1, timeout: connectionTimeoutInMs }]);
         }
 
         node.on('input', async function (msg) {
             console.debug('Received input message: ' + msg);
             connectingStart();
             var _ = await bleProvider.initializeAdapter();
-            var device = await bleProvider.waitDevice(config.address,
-                config.timeout * 1000,
-                disconnected);
+            var device = await bleProvider.waitDevice(deviceAddress,
+                connectionTimeoutInMs);
             var connectionSuccess = device != null;
             if (connectionSuccess) {
                 console.info('Device ' + await device.toString() + ' was connected');
@@ -49,7 +52,7 @@ module.exports = function (RED) {
                 await bleDevicesManager.registerDevice(device);
                 node.send([{
                     payload: 1,
-                    _deviceAddress: config.address
+                    _deviceAddress: deviceAddress
                 }, null]);
             }
             connectingStatus(connectionSuccess);
@@ -63,8 +66,10 @@ module.exports = function (RED) {
                 // This node is being restarted
                 console.debug('Node is closing as it going to be restarted');
             }
-            var { device, _, _ } = await bleDevicesManager.getDevice(config.address);
-            device.removeListener('disconnect', disconnected);
+            if (bleDevicesManager.isDeviceRegistered(deviceAddress)) {
+                var { device, _, _ } = await bleDevicesManager.getDevice(deviceAddress);
+                device.removeListener('disconnect', disconnected);
+            }
             done();
         })
     }

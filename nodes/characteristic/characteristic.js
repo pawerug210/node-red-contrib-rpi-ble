@@ -3,9 +3,11 @@ const bleDevicesManager = ble_core.bleDevicesManager();
 
 module.exports = function(RED) {
     function CharacteristicNode(config) {
-        RED.nodes.createNode(this, config);
-        var node = this;
         console.debug('Creating CharacteristicNode');
+        RED.nodes.createNode(this, config);
+
+        var node = this;
+        
         node.status({});
 
 		function characteristicStatus(available) {

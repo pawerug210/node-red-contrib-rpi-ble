@@ -3,9 +3,10 @@ const bleProvider = ble_core.bleProvider();
     
 module.exports = function(RED) {
     function DiscovernNode(config) {
-        RED.nodes.createNode(this, config);
-        var node = this;
         console.debug('Creating DiscoverNode');
+        RED.nodes.createNode(this, config);
+        
+        var node = this;
 
         function discoverStart() {
             console.debug('Discovery started');
@@ -43,5 +44,5 @@ module.exports = function(RED) {
             done();
         })
     }
-    RED.nodes.registerType("discover", DiscovernNode);
+    RED.nodes.registerType('discover', DiscovernNode);
 }

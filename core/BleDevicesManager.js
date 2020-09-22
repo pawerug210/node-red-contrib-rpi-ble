@@ -12,14 +12,19 @@ class BleDevicesManager {
         this._devices = {}
     }
 
+    isDeviceRegistered(address) {
+        address = address.toUpperCase();
+        return address in this._devices;
+    }
+
     async registerDevice(device) {
         if (device != null) {
-            var device_address = (await device.getAddress()).toUpperCase();
-            if (!(device_address in this._devices)) {
-                console.info('Registering new device with address ' + device_address);
-                this._devices[device_address] = new BleDevice(device, await device.gatt());
+            var deviceAddress = (await device.getAddress()).toUpperCase();
+            if (!isDeviceRegistered(address)) {
+                console.info('Registering new device with address ' + deviceAddress);
+                this._devices[deviceAddress] = new BleDevice(device, await device.gatt());
             } else {
-                console.info('Device with address ' + device_address + ' already registered in Device Manager');
+                console.info('Device with address ' + deviceAddress + ' already registered in Device Manager');
             }
         } else {
             console.info('Trying to register empty device');
@@ -30,7 +35,7 @@ class BleDevicesManager {
         address = address.toUpperCase();
 
         console.debug('Requesting device with address ' + address);
-        if (address in this._devices) {
+        if (isDeviceRegistered(address)) {
             console.debug('Device ' + address + ' is registered in Device Manager');
             var bleDevice = this._devices[address];
             return {
@@ -40,7 +45,7 @@ class BleDevicesManager {
             };
         }
         console.warn('Trying to get device ' + address + ' which is not registered');
-        return null;
+        throw new Error('Trying to get device ' + address + ' which is not registered');
     }
 
     async getService(deviceAddress, serviceUuid) {
