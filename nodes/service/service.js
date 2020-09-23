@@ -19,7 +19,14 @@ module.exports = function(RED) {
         }
         
         node.on('input', async function(msg) {
-            console.debug('Received input message: ' + msg);
+            console.debug('Received input message: ' + JSON.stringify(msg));
+
+            if ('disconnected' in msg) {
+                node.status({});
+                node.send(msg);
+                return;
+            }
+
             var service = await bleDevicesManager.getService(msg._deviceAddress, config.uuid);
             var serviceAvailable = service != null;
             serviceStatus(serviceAvailable);

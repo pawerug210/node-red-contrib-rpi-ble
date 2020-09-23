@@ -48,6 +48,24 @@ class BleDevicesManager {
         throw new Error('Trying to get device ' + address + ' which is not registered');
     }
 
+    async removeDevice(address) {
+        address = address.toUpperCase();
+
+        console.debug('Requesting disconnection to device with address ' + address);
+        if (this.isDeviceRegistered(address)) {
+            console.debug('Device ' + address + ' is registered in Device Manager');
+            var bleDevice = this._devices[address];
+            if (await bleDevice.device.isConnected()) {
+                console.debug('Device ' + address + ' is connected');
+                await bleDevice.device.disconnect();
+            }
+            console.debug('Unregistering device ' + address + ' from Device Manager');
+            delete this._devices[address];
+            return;
+        }
+        console.warn('Trying to disconnect device ' + address + ' which is not registered');
+    }
+
     async getService(deviceAddress, serviceUuid) {
         var service = null;
 

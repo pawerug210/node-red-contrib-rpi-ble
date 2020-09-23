@@ -5,7 +5,7 @@ const bleDevicesManager = ble_core.bleDevicesManager();
 module.exports = function (RED) {
     function DeviceNode(config) {
         console.debug('Creating DeviceNode');
-        RED.nodes.createNode(this, config);        
+        RED.nodes.createNode(this, config);
 
         var node = this;
         var connectionTimeoutInMs = config.timeout * 1000;
@@ -23,7 +23,11 @@ module.exports = function (RED) {
                 node.status({ fill: 'green', shape: 'ring', text: 'connected' });
             } else {
                 node.status({ fill: 'red', shape: 'ring', text: 'error' });
-                node.send([null, { payload: 1, timeout: connectionTimeoutInMs }]);
+                node.send([null, {
+                    payload: 1,
+                    timeout: connectionTimeoutInMs,
+                    disconnected: true
+                }]);
             }
         }
 
@@ -33,13 +37,18 @@ module.exports = function (RED) {
         }
 
         function disconnected(status) {
-            console.info('Device ' +  + ' was disconnected');
+            console.info('Device ' + deviceAddress + ' was disconnected');
+
             node.status({ fill: 'red', shape: 'ring', text: 'disconnected' });
-            node.send([null, { payload: 1, timeout: connectionTimeoutInMs }]);
+            node.send([null, {
+                payload: 1,
+                timeout: connectionTimeoutInMs,
+                disconnected: true
+            }]);
         }
 
         node.on('input', async function (msg) {
-            console.debug('Received input message: ' + msg);
+            console.debug('Received input message: ' + JSON.stringify(msg));
             connectingStart();
             var _ = await bleProvider.initializeAdapter();
             var device = await bleProvider.waitDevice(deviceAddress,
@@ -69,6 +78,7 @@ module.exports = function (RED) {
             if (bleDevicesManager.isDeviceRegistered(deviceAddress)) {
                 var { device, _, _ } = await bleDevicesManager.getDevice(deviceAddress);
                 device.removeListener('disconnect', disconnected);
+                await bleDevicesManager.removeDevice(deviceAddress);
             }
             done();
         })

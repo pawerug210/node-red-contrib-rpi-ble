@@ -20,7 +20,7 @@ module.exports = function(RED) {
         }
         
         node.on('input', async function(msg) {
-            console.debug('Received input message: ' + msg);
+            console.debug('Received input message: ' + JSON.stringify(msg));
             await bleProvider.initializeAdapter();
             await bleProvider.startDiscovery();
             discoverStart();

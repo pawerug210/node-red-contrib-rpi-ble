@@ -24,7 +24,14 @@ module.exports = function (RED) {
         }
 
         node.on('input', async function (msg) {
-            console.debug('Received input message: ' + msg);
+            console.debug('Received input message: ' + JSON.stringify(msg));
+
+            if ('disconnected' in msg) {
+                node.status({});
+                node.send(msg);
+                return;
+            }
+
             characteristic = await bleDevicesManager.getCharacteristic(msg._deviceAddress,
                 msg._serviceUuid,
                 msg._characteristicUuid);
