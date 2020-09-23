@@ -9,7 +9,7 @@ class BleProvider {
     }
 
     async initializeAdapter(adapter = null) {
-        if (this.adapter == null) {
+        if (!this.adapter) {
             try {
                 if (adapter == null) {
                     console.info('Creating default adapter');

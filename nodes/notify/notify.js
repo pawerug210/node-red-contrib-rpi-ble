@@ -64,6 +64,7 @@ module.exports = function (RED) {
             }
             if (characteristic) {
                 characteristic.removeListener('valuechanged', notify);
+                await bleDevicesManager.stopNotifications(characteristic);
             }
             done();
         })

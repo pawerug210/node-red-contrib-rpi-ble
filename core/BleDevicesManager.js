@@ -102,6 +102,8 @@ class BleDevicesManager {
 
     async startNotifications(characteristic) {
         var success = false;
+
+        console.debug('Requesting to start notifications for characteristic ' + await characteristic.toString());
         if (characteristic) {
             //todo: check if it has notify flag
             if (!(await characteristic.isNotifying())) {
@@ -114,9 +116,16 @@ class BleDevicesManager {
     }
 
     async stopNotifications(characteristic) {
+        var characteristicAddress = await characteristic.toString();
+
+        console.debug('Requesting to stop notifications for characteristic ' + characteristicAddress);
         if (characteristic) {
-            console.info('Stopping notifications for characteristic ' + await characteristic.toString());
-            await characteristic.stopNotifications();
+            if (await characteristic.isNotifying()) {
+                console.info('Stopping notifications for characteristic ' + characteristicAddress);
+                await characteristic.startNotifications();
+            } else {
+                console.debug('Notifications for characteristic ' + characteristicAddress + ' were not started');
+            }
         }
     }
 }

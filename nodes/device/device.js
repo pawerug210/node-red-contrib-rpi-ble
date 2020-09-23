@@ -38,7 +38,6 @@ module.exports = function (RED) {
 
         function disconnected(status) {
             console.info('Device ' + deviceAddress + ' was disconnected');
-
             node.status({ fill: 'red', shape: 'ring', text: 'disconnected' });
             node.send([null, {
                 payload: 1,
@@ -55,7 +54,6 @@ module.exports = function (RED) {
                 connectionTimeoutInMs);
             var connectionSuccess = device != null;
             if (connectionSuccess) {
-                console.info('Device ' + await device.toString() + ' was connected');
                 device.once('disconnect', disconnected);
                 connected();
                 await bleDevicesManager.registerDevice(device);
