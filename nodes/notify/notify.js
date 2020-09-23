@@ -24,7 +24,7 @@ module.exports = function (RED) {
         }
 
         node.on('input', async function (msg) {
-            console.debug('Received input message: ' + JSON.stringify(msg));
+            console.debug('NotifyNode received input message: ' + JSON.stringify(msg));
 
             if ('disconnected' in msg) {
                 node.status({});
@@ -36,7 +36,7 @@ module.exports = function (RED) {
                 msg._serviceUuid,
                 msg._characteristicUuid);
 
-            if (characteristic != null) {
+            if (characteristic) {
                 if (!characteristic.listeners('valuechanged').includes(notify)) {
                     console.info('Registering callback for notifications on characteristic ' + msg._characteristicUuid +
                         ' from service ' + msg._serviceUuid +
@@ -62,7 +62,7 @@ module.exports = function (RED) {
                 // This node is being restarted
                 console.debug('Node is closing as it going to be restarted');
             }
-            if (characteristic != null) {
+            if (characteristic) {
                 characteristic.removeListener('valuechanged', notify);
             }
             done();

@@ -19,7 +19,7 @@ module.exports = function(RED) {
         }
         
         node.on('input', async function(msg) {
-            console.debug('Received input message: ' + JSON.stringify(msg));
+            console.debug('CharacteristicNode received input message: ' + JSON.stringify(msg));
 
             if ('disconnected' in msg) {
                 node.status({});

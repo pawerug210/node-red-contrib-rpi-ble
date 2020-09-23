@@ -18,7 +18,7 @@ class BleDevicesManager {
     }
 
     async registerDevice(device) {
-        if (device != null) {
+        if (device) {
             var deviceAddress = (await device.getAddress()).toUpperCase();
             if (!this.isDeviceRegistered(deviceAddress)) {
                 console.info('Registering new device with address ' + deviceAddress);
@@ -102,7 +102,7 @@ class BleDevicesManager {
 
     async startNotifications(characteristic) {
         var success = false;
-        if (characteristic != null) {
+        if (characteristic) {
             //todo: check if it has notify flag
             if (!(await characteristic.isNotifying())) {
                 console.info('Starting notifications for characteristic ' + await characteristic.toString());
@@ -114,7 +114,7 @@ class BleDevicesManager {
     }
 
     async stopNotifications(characteristic) {
-        if (characteristic != null) {
+        if (characteristic) {
             console.info('Stopping notifications for characteristic ' + await characteristic.toString());
             await characteristic.stopNotifications();
         }

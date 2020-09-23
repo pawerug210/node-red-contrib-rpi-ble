@@ -48,7 +48,7 @@ module.exports = function (RED) {
         }
 
         node.on('input', async function (msg) {
-            console.debug('Received input message: ' + JSON.stringify(msg));
+            console.debug('DeviceNode received input message: ' + JSON.stringify(msg));
             connectingStart();
             var _ = await bleProvider.initializeAdapter();
             var device = await bleProvider.waitDevice(deviceAddress,
