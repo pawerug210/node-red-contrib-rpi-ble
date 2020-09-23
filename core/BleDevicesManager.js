@@ -122,7 +122,7 @@ class BleDevicesManager {
         if (characteristic) {
             if (await characteristic.isNotifying()) {
                 console.info('Stopping notifications for characteristic ' + characteristicAddress);
-                await characteristic.startNotifications();
+                await characteristic.stopNotifications();
             } else {
                 console.debug('Notifications for characteristic ' + characteristicAddress + ' were not started');
             }
