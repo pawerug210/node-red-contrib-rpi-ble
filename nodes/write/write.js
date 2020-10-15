@@ -11,11 +11,24 @@ module.exports = function (RED) {
 
         node.status({});
 
+        function resetStatus(delayInSeconds) {
+            setTimeout(function() {
+                node.status({});
+			}, delayInSeconds * 1000);
+        }
+
         node.on('input', async function (msg) {
             console.debug('WriteNode received input message: ' + JSON.stringify(msg));
 
             if (characteristic) {
-                await characteristic.writeValue(Buffer.from(msg.payload))
+                try {
+                    await characteristic.writeValue(Buffer.from(msg.payload));
+                    node.status({ fill: 'green', shape: 'ring', text: 'success' });
+                } catch (error) {
+                    console.error('Writing to characteristic error: ' + error);
+                    node.status({ fill: 'red', shape: 'ring', text: 'error' });
+                }
+                resetStatus(2);
             } else {
                 console.info('Characteristic not yet initialized, trying to retrieve it..');
                 try {
