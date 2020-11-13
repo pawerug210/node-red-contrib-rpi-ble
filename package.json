@@ -1,13 +1,14 @@
 {
     "name" : "node-red-contrib-rpi-ble",
-	"version" : "1.0.0",
+	"version" : "1.1.1",
     "node-red" : {
         "nodes": {
             "discover": "nodes/discover/discover.js",
             "device": "nodes/device/device.js",
             "characteristic": "nodes/characteristic/characteristic.js",
             "service": "nodes/service/service.js",	
-            "notify": "nodes/notify/notify.js"	
+            "notify": "nodes/notify/notify.js",
+            "write": "nodes/write/write.js"	
         }
     },
 	"author": {

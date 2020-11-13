@@ -77,7 +77,7 @@ class BleDevicesManager {
         } catch (error) {
             console.warn('Getting service ' + serviceUuid +
                 ' from device ' + deviceAddress +
-                ' returns error: ' + error);
+                ' returned error: ' + error);
         }
         return service;
     }
@@ -85,7 +85,9 @@ class BleDevicesManager {
     async getCharacteristic(deviceAddress, serviceUuid, characteristicUuid) {
         var characteristic = null;
 
-        console.debug('Requesting service ' + serviceUuid + ' from device ' + deviceAddress);
+        console.debug('Requesting characteristic ' + characteristicUuid +
+            ' service ' + serviceUuid +
+            ' from device ' + deviceAddress);
         try {
             var { _, gatt, _ } = await this.getDevice(deviceAddress);
             var service = await gatt.getPrimaryService(serviceUuid.toLowerCase());
@@ -95,7 +97,7 @@ class BleDevicesManager {
             console.warn('Getting characteristic ' + characteristicUuid +
                 ' from service ' + serviceUuid +
                 ' from device ' + deviceAddress +
-                ' returns error: ' + error);
+                ' returned error: ' + error);
         }
         return characteristic;
     }
