@@ -1,0 +1,28 @@
+<script type="text/javascript">
+    RED.nodes.registerType('read',{
+        category: 'bluetooth',
+        color: '#a6bbcf',
+        defaults: {
+			name: {
+                value: ""
+            }
+		},
+        inputs:1,
+        outputs:1,
+        icon: "bluetooth.png",
+        label: function() {
+            return this.name || "read";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="read">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="read">
+    <p>A simple node to read a value from characteristic.</p>
+</script>
