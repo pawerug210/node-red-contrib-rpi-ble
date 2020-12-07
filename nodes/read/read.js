@@ -36,6 +36,12 @@ module.exports = function (RED) {
                     characteristic = await bleDevicesManager.getCharacteristic(msg._deviceAddress,
                         msg._serviceUuid,
                         msg._characteristicUuid);
+                    if (config.read) {
+                        msg.payload = await characteristic.readValue();
+                        node.status({ fill: 'green', shape: 'ring', text: 'success' });
+                        node.send(msg);
+                        resetStatus(2);
+                    }
                 } catch (error) {
                     node.error('Cannot read from unknown characteristic, initialize it first');
                     console.error('Reading from uninitialized characteristic returned error: ' + error);
