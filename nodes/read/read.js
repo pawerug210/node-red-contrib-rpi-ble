@@ -12,7 +12,7 @@ const logger = new winston.createLogger(myWinstonOptions)
 
 module.exports = function (RED) {
     function ReadNode(config) {
-        logger.debug('Creating ReadNode');
+        RED.log('Creating ReadNode');
         RED.nodes.createNode(this, config);
 
         var node = this;
@@ -27,7 +27,7 @@ module.exports = function (RED) {
         }
 
         node.on('input', async function (msg) {
-            logger.debug('ReadNode received input message: ' + JSON.stringify(msg));
+            RED.log('ReadNode received input message: ' + JSON.stringify(msg));
 
             if (characteristic) {
                 try {
@@ -53,7 +53,7 @@ module.exports = function (RED) {
                     }
                 } catch (error) {
                     node.error('Cannot read from unknown characteristic, initialize it first');
-                    logger.error('Reading from uninitialized characteristic returned error: ' + error);
+                    RED.log('Reading from uninitialized characteristic returned error: ' + error);
                 }
             }
         })
@@ -61,10 +61,10 @@ module.exports = function (RED) {
         node.on('close', async function (removed, done) {
             if (removed) {
                 // This node has been disabled/deleted
-                logger.debug('Node is closing as it got removed');
+                RED.log('Node is closing as it got removed');
             } else {
                 // This node is being restarted
-                logger.debug('Node is closing as it going to be restarted');
+                RED.log('Node is closing as it going to be restarted');
             }
             done();
         })
