@@ -4,6 +4,7 @@ const bleDevicesManager = ble_core.bleDevicesManager();
 
 const consoleTransport = new winston.transports.Console()
 const myWinstonOptions = {
+    level: 'debug',
     transports: [consoleTransport]
 }
 
