@@ -1,9 +1,12 @@
 const ble_core = require('./../../core/ble_core');
+const winston = require('winston')
 const bleDevicesManager = ble_core.bleDevicesManager();
+
+const logger = new winston.createLogger(myWinstonOptions)
 
 module.exports = function (RED) {
     function ReadNode(config) {
-        console.debug('Creating ReadNode');
+        logger.debug('Creating ReadNode');
         RED.nodes.createNode(this, config);
 
         var node = this;
@@ -18,7 +21,7 @@ module.exports = function (RED) {
         }
 
         node.on('input', async function (msg) {
-            console.debug('ReadNode received input message: ' + JSON.stringify(msg));
+            logger.debug('ReadNode received input message: ' + JSON.stringify(msg));
 
             if (characteristic) {
                 try {
@@ -26,12 +29,12 @@ module.exports = function (RED) {
                     node.status({ fill: 'green', shape: 'ring', text: 'success' });
                     node.send(msg);
                 } catch (error) {
-                    console.error('Reading from characteristic error: ' + error);
+                    logger.error('Reading from characteristic error: ' + error);
                     node.status({ fill: 'red', shape: 'ring', text: 'error' });
                 }
                 resetStatus(2);
             } else {
-                console.info('Characteristic not yet initialized, trying to retrieve it..');
+                logger.info('Characteristic not yet initialized, trying to retrieve it..');
                 try {
                     characteristic = await bleDevicesManager.getCharacteristic(msg._deviceAddress,
                         msg._serviceUuid,
@@ -44,7 +47,7 @@ module.exports = function (RED) {
                     }
                 } catch (error) {
                     node.error('Cannot read from unknown characteristic, initialize it first');
-                    console.error('Reading from uninitialized characteristic returned error: ' + error);
+                    logger.error('Reading from uninitialized characteristic returned error: ' + error);
                 }
             }
         })
@@ -52,10 +55,10 @@ module.exports = function (RED) {
         node.on('close', async function (removed, done) {
             if (removed) {
                 // This node has been disabled/deleted
-                console.debug('Node is closing as it got removed');
+                logger.debug('Node is closing as it got removed');
             } else {
                 // This node is being restarted
-                console.debug('Node is closing as it going to be restarted');
+                logger.debug('Node is closing as it going to be restarted');
             }
             done();
         })

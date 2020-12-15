@@ -1,6 +1,6 @@
 {
     "name" : "node-red-contrib-rpi-ble",
-	"version" : "1.2.1",
+	"version" : "1.2.2",
     "node-red" : {
         "nodes": {
             "discover": "nodes/discover/discover.js",
@@ -17,6 +17,7 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"node-ble" : "^1.2.0"
+        "node-ble" : "^1.2.0",
+        "winston": "3.3.3"
 	}
 }
