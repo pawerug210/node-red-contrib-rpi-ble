@@ -2,6 +2,11 @@ const ble_core = require('./../../core/ble_core');
 const winston = require('winston')
 const bleDevicesManager = ble_core.bleDevicesManager();
 
+const consoleTransport = new winston.transports.Console()
+const myWinstonOptions = {
+    transports: [consoleTransport]
+}
+
 const logger = new winston.createLogger(myWinstonOptions)
 
 module.exports = function (RED) {
