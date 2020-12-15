@@ -3,7 +3,7 @@ const bleDevicesManager = ble_core.bleDevicesManager();
 
 module.exports = function(RED) {
     function ServiceNode(config) {
-        console.debug('Creating ServiceNode');
+        node.debug('Creating ServiceNode');
         RED.nodes.createNode(this, config);
 
         var node = this;
@@ -19,7 +19,7 @@ module.exports = function(RED) {
         }
         
         node.on('input', async function(msg) {
-            console.debug('Received input message: ' + JSON.stringify(msg));
+            node.debug('Received input message: ' + JSON.stringify(msg));
 
             if ('disconnected' in msg) {
                 node.status({});
@@ -41,10 +41,10 @@ module.exports = function(RED) {
         node.on('close', async function(removed, done) {
             if (removed) {
                 // This node has been disabled/deleted
-                console.debug('Node is closing as it got removed');
+                node.debug('Node is closing as it got removed');
             } else {
                 // This node is being restarted
-                console.debug('Node is closing as it going to be restarted');
+                node.debug('Node is closing as it going to be restarted');
             }
             //bleProvider.destroy();
             done();

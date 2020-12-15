@@ -3,7 +3,7 @@ const bleDevicesManager = ble_core.bleDevicesManager();
 
 module.exports = function (RED) {
     function NotifyNode(config) {
-        console.debug('Creating NotifyNode');
+        node.debug('Creating NotifyNode');
         RED.nodes.createNode(this, config);
         
         var node = this;
@@ -24,7 +24,7 @@ module.exports = function (RED) {
         }
 
         node.on('input', async function (msg) {
-            console.debug('NotifyNode received input message: ' + JSON.stringify(msg));
+            node.debug('NotifyNode received input message: ' + JSON.stringify(msg));
 
             if ('disconnected' in msg) {
                 node.status({});
@@ -38,7 +38,7 @@ module.exports = function (RED) {
 
             if (characteristic) {
                 if (!characteristic.listeners('valuechanged').includes(notify)) {
-                    console.info('Registering callback for notifications on characteristic ' + msg._characteristicUuid +
+                    node.info('Registering callback for notifications on characteristic ' + msg._characteristicUuid +
                         ' from service ' + msg._serviceUuid +
                         ' from device ' + msg._deviceAddress);
                     characteristic.on('valuechanged', notify);
@@ -57,10 +57,10 @@ module.exports = function (RED) {
         node.on('close', async function (removed, done) {
             if (removed) {
                 // This node has been disabled/deleted
-                console.debug('Node is closing as it got removed');
+                node.debug('Node is closing as it got removed');
             } else {
                 // This node is being restarted
-                console.debug('Node is closing as it going to be restarted');
+                node.debug('Node is closing as it going to be restarted');
             }
             if (characteristic) {
                 characteristic.removeListener('valuechanged', notify);
