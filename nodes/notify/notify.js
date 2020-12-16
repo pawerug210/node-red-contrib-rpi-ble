@@ -5,7 +5,7 @@ module.exports = function (RED) {
     function NotifyNode(config) {
         RED.nodes.createNode(this, config);        
         var node = this;
-        
+
         node.debug('Creating NotifyNode');
 
         var characteristic = null;
@@ -39,7 +39,7 @@ module.exports = function (RED) {
 
             if (characteristic) {
                 if (!characteristic.listeners('valuechanged').includes(notify)) {
-                    node.info('Registering callback for notifications on characteristic ' + msg._characteristicUuid +
+                    node.log('Registering callback for notifications on characteristic ' + msg._characteristicUuid +
                         ' from service ' + msg._serviceUuid +
                         ' from device ' + msg._deviceAddress);
                     characteristic.on('valuechanged', notify);

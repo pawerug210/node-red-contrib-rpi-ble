@@ -32,7 +32,7 @@ module.exports = function (RED) {
                 }
                 resetStatus(2);
             } else {
-                node.info('Characteristic not yet initialized, trying to retrieve it..');
+                node.log('Characteristic not yet initialized, trying to retrieve it..');
                 try {
                     characteristic = await bleDevicesManager.getCharacteristic(msg._deviceAddress,
                         msg._serviceUuid,

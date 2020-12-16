@@ -33,12 +33,12 @@ module.exports = function (RED) {
         }
 
         function connected() {
-            node.info('Device ' + deviceAddress + ' was connected');
+            node.log('Device ' + deviceAddress + ' was connected');
             node.status({ fill: 'green', shape: 'ring', text: 'connected' });
         }
 
         function disconnected(status) {
-            node.info('Device ' + deviceAddress + ' was disconnected');
+            node.log('Device ' + deviceAddress + ' was disconnected');
             node.status({ fill: 'red', shape: 'ring', text: 'disconnected' });
             node.send([null, {
                 payload: 1,
