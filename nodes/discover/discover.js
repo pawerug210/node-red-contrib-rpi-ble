@@ -3,10 +3,10 @@ const bleProvider = ble_core.bleProvider();
     
 module.exports = function(RED) {
     function DiscovernNode(config) {
-        node.debug('Creating DiscoverNode');
-        RED.nodes.createNode(this, config);
-        
+        RED.nodes.createNode(this, config);        
         var node = this;
+
+        node.debug('Creating DiscoverNode');
 
         function discoverStart() {
             node.debug('Discovery started');

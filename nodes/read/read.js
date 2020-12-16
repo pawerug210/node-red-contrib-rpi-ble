@@ -3,10 +3,11 @@ const bleDevicesManager = ble_core.bleDevicesManager();
 
 module.exports = function (RED) {
     function ReadNode(config) {
-        node.log('Creating ReadNode');
         RED.nodes.createNode(this, config);
-
         var node = this;
+
+        node.log('Creating ReadNode');
+
         var characteristic = null;
 
         node.status({});

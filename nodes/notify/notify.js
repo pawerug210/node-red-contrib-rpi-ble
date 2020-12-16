@@ -3,10 +3,11 @@ const bleDevicesManager = ble_core.bleDevicesManager();
 
 module.exports = function (RED) {
     function NotifyNode(config) {
-        node.debug('Creating NotifyNode');
-        RED.nodes.createNode(this, config);
-        
+        RED.nodes.createNode(this, config);        
         var node = this;
+        
+        node.debug('Creating NotifyNode');
+
         var characteristic = null;
 
         node.status({});

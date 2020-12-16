@@ -4,10 +4,11 @@ const bleDevicesManager = ble_core.bleDevicesManager();
 
 module.exports = function (RED) {
     function DeviceNode(config) {
-        node.debug('Creating DeviceNode');
         RED.nodes.createNode(this, config);
-
         var node = this;
+
+        node.debug('Creating DeviceNode');
+
         var connectionTimeoutInMs = config.timeout * 1000;
         var deviceAddress = config.address.toUpperCase();
 
