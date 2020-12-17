@@ -13,13 +13,20 @@ module.exports = function (RED) {
         node.status({});
 
         function resetStatus(delayInSeconds) {
-            setTimeout(function() {
+            setTimeout(function () {
                 node.status({});
-			}, delayInSeconds * 1000);
+            }, delayInSeconds * 1000);
         }
 
         node.on('input', async function (msg) {
             node.log('ReadNode received input message: ' + JSON.stringify(msg));
+
+            if ('disconnected' in msg) {
+                characteristic = null;
+                node.status({});
+                node.send(msg);
+                return;
+            }
 
             if (characteristic) {
                 try {
