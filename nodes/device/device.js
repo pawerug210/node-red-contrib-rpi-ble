@@ -4,17 +4,18 @@ const bleDevicesManager = ble_core.bleDevicesManager();
 
 module.exports = function (RED) {
     function DeviceNode(config) {
-        console.debug('Creating DeviceNode');
         RED.nodes.createNode(this, config);
-
         var node = this;
+
+        node.debug('Creating DeviceNode');
+
         var connectionTimeoutInMs = config.timeout * 1000;
         var deviceAddress = config.address.toUpperCase();
 
         node.status({});
 
         function connectingStart() {
-            console.debug('Connecting started');
+            node.debug('Connecting started');
             node.status({ fill: 'blue', shape: 'ring', text: 'connecting' });
         }
 
@@ -32,12 +33,12 @@ module.exports = function (RED) {
         }
 
         function connected() {
-            console.info('Device ' + deviceAddress + ' was connected');
+            node.log('Device ' + deviceAddress + ' was connected');
             node.status({ fill: 'green', shape: 'ring', text: 'connected' });
         }
 
         function disconnected(status) {
-            console.info('Device ' + deviceAddress + ' was disconnected');
+            node.log('Device ' + deviceAddress + ' was disconnected');
             node.status({ fill: 'red', shape: 'ring', text: 'disconnected' });
             node.send([null, {
                 payload: 1,
@@ -47,7 +48,7 @@ module.exports = function (RED) {
         }
 
         node.on('input', async function (msg) {
-            console.debug('DeviceNode received input message: ' + JSON.stringify(msg));
+            node.debug('DeviceNode received input message: ' + JSON.stringify(msg));
             connectingStart();
             var _ = await bleProvider.initializeAdapter();
             var device = await bleProvider.waitDevice(deviceAddress,
@@ -68,10 +69,10 @@ module.exports = function (RED) {
         node.on('close', async function (removed, done) {
             if (removed) {
                 // This node has been disabled/deleted
-                console.debug('Node is closing as it got removed');
+                node.debug('Node is closing as it got removed');
             } else {
                 // This node is being restarted
-                console.debug('Node is closing as it going to be restarted');
+                node.debug('Node is closing as it going to be restarted');
             }
             if (bleDevicesManager.isDeviceRegistered(deviceAddress)) {
                 var { device, _, _ } = await bleDevicesManager.getDevice(deviceAddress);
