@@ -80,7 +80,7 @@ class BleProvider {
 var instance = null;
 module.exports.getBleProvider = function() {
     if (!instance) {
-        logger.log('Creating ble provider');
+        logger.debug('Creating ble provider');
         instance = new BleProvider();
     }
     return instance;
