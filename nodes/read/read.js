@@ -18,6 +18,10 @@ module.exports = function (RED) {
             }, delayInSeconds * 1000);
         }
 
+        node.on('error', function() {
+            node.error('Node error occured');
+        })
+
         node.on('input', async function (msg) {
             node.log('ReadNode received input message: ' + JSON.stringify(msg));
 

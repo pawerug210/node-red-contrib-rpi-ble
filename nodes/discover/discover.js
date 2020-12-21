@@ -18,6 +18,10 @@ module.exports = function(RED) {
             node.status({});
             node.send({ payload: 1 });
         }
+
+        node.on('error', function() {
+            node.error('Node error occured');
+        })
         
         node.on('input', async function(msg) {
             node.debug('DiscoverNode received input message: ' + JSON.stringify(msg));

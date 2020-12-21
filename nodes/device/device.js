@@ -46,6 +46,10 @@ module.exports = function (RED) {
                 disconnected: true
             }]);
         }
+        
+        node.on('error', function() {
+            node.error('Node error occured');
+        })
 
         node.on('input', async function (msg) {
             node.debug('DeviceNode received input message: ' + JSON.stringify(msg));

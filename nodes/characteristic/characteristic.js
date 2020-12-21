@@ -17,6 +17,10 @@ module.exports = function(RED) {
                 node.status({ fill: 'red', shape: 'ring', text: 'error' });
             }          
         }
+
+        node.on('error', function() {
+            node.error('Node error occured');
+        })
         
         node.on('input', async function(msg) {
             node.debug('CharacteristicNode received input message: ' + JSON.stringify(msg));
