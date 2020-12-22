@@ -17,6 +17,6 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-        "node-ble" : "^1.2.0"
+        "node-ble" : "^1.4.0"
 	}
 }
