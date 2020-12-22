@@ -46,8 +46,8 @@ module.exports = function (RED) {
                 disconnected: true
             }]);
         }
-        
-        node.on('error', function() {
+
+        node.on('error', function () {
             node.error('Node error occured');
         })
 
@@ -60,6 +60,8 @@ module.exports = function (RED) {
             var connectionSuccess = device != null;
             if (connectionSuccess) {
                 device.once('disconnect', disconnected);
+                node.debug('Disconnection events listeners number for device ' + deviceAddress
+                    + ' is ' + device.listenerCount('disconnect'))
                 connected();
                 await bleDevicesManager.registerDevice(device);
                 node.send([{
