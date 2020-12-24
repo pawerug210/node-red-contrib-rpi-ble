@@ -33,7 +33,7 @@ module.exports = function (RED) {
 
             if ('disconnected' in msg) {
                 if (characteristic) {
-                    node.info('Removing callback for notifications on characteristic ' + await characteristic.getUUID());
+                    node.log('Removing callback for notifications on characteristic ' + await characteristic.getUUID());
                     characteristic.removeListener('valuechanged', notify);
                     characteristic = null;
                 }
@@ -54,6 +54,10 @@ module.exports = function (RED) {
                             ' from device ' + msg._deviceAddress);
                         characteristic.on('valuechanged', notify);
                     }
+                    node.debug('Callbacks number for notifications on characteristic ' + msg._characteristicUuid +
+                        ' from service ' + msg._serviceUuid +
+                        ' from device ' + msg._deviceAddress +
+                        ' is ' + characteristic.listenerCount('valuechanged'));
                     var subscribeSuccess = await bleDevicesManager.startNotifications(characteristic);
                     notifyStatus(subscribeSuccess);
                     if (config.period > 0) {
