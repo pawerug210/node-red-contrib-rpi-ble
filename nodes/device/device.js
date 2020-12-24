@@ -54,20 +54,29 @@ module.exports = function (RED) {
         node.on('input', async function (msg) {
             node.debug('DeviceNode received input message: ' + JSON.stringify(msg));
             connectingStart();
-            var _ = await bleProvider.initializeAdapter();
-            var device = await bleProvider.waitDevice(deviceAddress,
-                connectionTimeoutInMs);
-            var connectionSuccess = device != null;
-            if (connectionSuccess) {
-                device.once('disconnect', disconnected);
-                node.debug('Disconnection events listeners number for device ' + deviceAddress
-                    + ' is ' + device.listenerCount('disconnect'))
-                connected();
-                await bleDevicesManager.registerDevice(device);
-                node.send([{
-                    payload: 1,
-                    _deviceAddress: deviceAddress
-                }, null]);
+            var connectionSuccess = false;
+            try {
+                var _ = await bleProvider.initializeAdapter();
+                var device = await bleProvider.waitDevice(deviceAddress,
+                    connectionTimeoutInMs);
+                connectionSuccess = device != null;
+                if (connectionSuccess) {
+                    if (!device.listeners('disconnect').includes(disconnected)) {
+                        node.log('Registering listener for disconnection event on device ' + deviceAddress);
+                        device.once('disconnect', disconnected);
+                    }
+                    node.debug('Disconnection event listeners number for device ' + deviceAddress
+                        + ' is ' + device.listenerCount('disconnect'))
+                    connected();
+                    await bleDevicesManager.registerDevice(device);
+                    node.send([{
+                        payload: 1,
+                        _deviceAddress: deviceAddress
+                    }, null]);
+                }
+            } catch (error) {
+                connectingStatus = false;
+                node.error('Connection attempt to device ' + deviceAddress + ' returned error; ' + error);
             }
             connectingStatus(connectionSuccess);
         })

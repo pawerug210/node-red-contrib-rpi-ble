@@ -30,16 +30,21 @@ module.exports = function(RED) {
                 node.send(msg);
                 return;
             }
-
-            var characteristic = await bleDevicesManager.getCharacteristic(msg._deviceAddress, msg._serviceUuid, config.uuid);
-            var characteristicAvailable = characteristic != null;
-            characteristicStatus(characteristicAvailable);
-            if (characteristicAvailable) {
-                node.send({ payload: 1, 
-                    _deviceAddress: msg._deviceAddress, 
-                    _serviceUuid: msg._serviceUuid, 
-                    _characteristicUuid: config.uuid 
-                });
+            
+            try {
+                var characteristic = await bleDevicesManager.getCharacteristic(msg._deviceAddress, msg._serviceUuid, config.uuid);
+                var characteristicAvailable = characteristic != null;
+                characteristicStatus(characteristicAvailable);
+                if (characteristicAvailable) {
+                    node.send({ payload: 1, 
+                        _deviceAddress: msg._deviceAddress, 
+                        _serviceUuid: msg._serviceUuid, 
+                        _characteristicUuid: config.uuid 
+                    });
+                }
+            } catch (error) {
+                characteristicStatus(false);
+                node.error('Getting characteristic ' + config.uuid + ' returned error; ' + error);
             }
         })
 
