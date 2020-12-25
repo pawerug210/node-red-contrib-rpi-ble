@@ -21,6 +21,7 @@ module.exports = function (RED) {
 
         function connectingStatus(success) {
             if (success) {
+                node.log('Device ' + deviceAddress + ' was connected');
                 node.status({ fill: 'green', shape: 'ring', text: 'connected' });
             } else {
                 node.status({ fill: 'red', shape: 'ring', text: 'error' });
@@ -30,11 +31,6 @@ module.exports = function (RED) {
                     disconnected: true
                 }]);
             }
-        }
-
-        function connected() {
-            node.log('Device ' + deviceAddress + ' was connected');
-            node.status({ fill: 'green', shape: 'ring', text: 'connected' });
         }
 
         function disconnected(status) {
@@ -56,11 +52,12 @@ module.exports = function (RED) {
 
             if (bleDevicesManager.isDeviceRegistered(deviceAddress)) {
                 try {
-                    var { device, _, connected } = await bleDevicesManager.getDevice(deviceAddress);
+                    var { device, connected } = await bleDevicesManager.getDevice(deviceAddress);
                     if (!connected) {
                         node.log('Device ' + deviceAddress + ' registered but not connected. Trying to connect...');
                         connectingStart();
                         await device.connect();
+                        connectingStatus(true);
                     } else {
                         node.log('Device ' + deviceAddress + ' already connected and registered');
                     }
@@ -86,8 +83,7 @@ module.exports = function (RED) {
                         device.once('disconnect', disconnected);
                     }
                     node.debug('Disconnection event listeners number for device ' + deviceAddress
-                        + ' is ' + device.listenerCount('disconnect'))
-                    connected();
+                        + ' is ' + device.listenerCount('disconnect'));
                     await bleDevicesManager.registerDevice(device);
                     node.send([{
                         payload: 1,
@@ -95,7 +91,7 @@ module.exports = function (RED) {
                     }, null]);
                 }
             } catch (error) {
-                connectingStatus = false;
+                connectionSuccess = false;
                 node.error('Connection attempt to device ' + deviceAddress + ' returned error; ' + error);
             }
             connectingStatus(connectionSuccess);
@@ -110,7 +106,7 @@ module.exports = function (RED) {
                 node.debug('Node is closing as it going to be restarted');
             }
             if (bleDevicesManager.isDeviceRegistered(deviceAddress)) {
-                var { device, _, _ } = await bleDevicesManager.getDevice(deviceAddress);
+                var { device } = await bleDevicesManager.getDevice(deviceAddress);
                 device.removeListener('disconnect', disconnected);
                 await bleDevicesManager.removeDevice(deviceAddress);
             }

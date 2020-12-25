@@ -32,7 +32,7 @@ class BleProvider {
 
     async startDiscovery() {
         //todo: timeout
-        if (!(this.adapter.isDiscovering())) {
+        if (!(await this.adapter.isDiscovering())) {
             logger.info('Starting adapter discovery');
             await this.adapter.startDiscovery();
         } else {
