@@ -32,7 +32,7 @@ class BleProvider {
 
     async startDiscovery() {
         //todo: timeout
-        if (! (await this.adapter.isDiscovering())) {
+        if (!(this.adapter.isDiscovering())) {
             logger.info('Starting adapter discovery');
             await this.adapter.startDiscovery();
         } else {
@@ -56,7 +56,7 @@ class BleProvider {
         logger.info('Requesting connection with device ' + address);
         try {
             device = await this.adapter.waitDevice(address, timeout);
-            logger.info('Device ' + address +' found, trying to connect...');           
+            logger.info('Device ' + address + ' found, trying to connect...');
             await device.connect();
         } catch (error) {
             logger.warn('Connection to device ' + address + ' error; ' + error);
@@ -78,7 +78,7 @@ class BleProvider {
 }
 
 var instance = null;
-module.exports.getBleProvider = function() {
+module.exports.getBleProvider = function () {
     if (!instance) {
         logger.debug('Creating ble provider');
         instance = new BleProvider();

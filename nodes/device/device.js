@@ -53,6 +53,13 @@ module.exports = function (RED) {
 
         node.on('input', async function (msg) {
             node.debug('DeviceNode received input message: ' + JSON.stringify(msg));
+
+            if (bleProvider.isDeviceRegistered(deviceAddress) &&
+                (await bleDevicesManager.getDevice(deviceAddress)).connected) {
+                node.log('Device ' + deviceAddress + ' already connected and registered');
+                return;
+            }
+
             connectingStart();
             var connectionSuccess = false;
             try {
