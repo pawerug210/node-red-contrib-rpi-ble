@@ -54,11 +54,24 @@ module.exports = function (RED) {
         node.on('input', async function (msg) {
             node.debug('DeviceNode received input message: ' + JSON.stringify(msg));
 
-            if (bleProvider.isDeviceRegistered(deviceAddress) &&
-                (await bleDevicesManager.getDevice(deviceAddress)).connected) {
-                node.log('Device ' + deviceAddress + ' already connected and registered');
+            if (bleDevicesManager.isDeviceRegistered(deviceAddress)) {
+                try {
+                    var { device, _, connected } = await bleDevicesManager.getDevice(deviceAddress);
+                    if (!connected) {
+                        node.log('Device ' + deviceAddress + ' registered but not connected. Trying to connect...');
+                        connectingStart();
+                        await device.connect();
+                    } else {
+                        node.log('Device ' + deviceAddress + ' already connected and registered');
+                    }
+                } catch (error) {
+                    node.error('Connection attempt to registered device ' + deviceAddress + ' returned error; ' + error);
+                    connectingStatus(false);
+                }
+
                 return;
             }
+
 
             connectingStart();
             var connectionSuccess = false;
