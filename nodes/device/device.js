@@ -43,6 +43,15 @@ module.exports = function (RED) {
             }]);
         }
 
+        function registerDisconnectListener(device) {
+            if (!device.listeners('disconnect').includes(disconnected)) {
+                node.log('Registering listener for disconnection event on device ' + deviceAddress);
+                device.once('disconnect', disconnected);
+            }
+            node.debug('Disconnection event listeners number for device ' + deviceAddress
+                + ' is ' + device.listenerCount('disconnect'));
+        }
+
         node.on('error', function () {
             node.error('Node error occured');
         })
@@ -57,7 +66,12 @@ module.exports = function (RED) {
                         node.log('Device ' + deviceAddress + ' registered but not connected. Trying to connect...');
                         connectingStart();
                         await device.connect();
+                        registerDisconnectListener(device);
                         connectingStatus(true);
+                        node.send([{
+                            payload: 1,
+                            _deviceAddress: deviceAddress
+                        }, null]);
                     } else {
                         node.log('Device ' + deviceAddress + ' already connected and registered');
                     }
@@ -78,12 +92,7 @@ module.exports = function (RED) {
                     connectionTimeoutInMs);
                 connectionSuccess = device != null;
                 if (connectionSuccess) {
-                    if (!device.listeners('disconnect').includes(disconnected)) {
-                        node.log('Registering listener for disconnection event on device ' + deviceAddress);
-                        device.once('disconnect', disconnected);
-                    }
-                    node.debug('Disconnection event listeners number for device ' + deviceAddress
-                        + ' is ' + device.listenerCount('disconnect'));
+                    registerDisconnectListener(device);
                     await bleDevicesManager.registerDevice(device);
                     node.send([{
                         payload: 1,
