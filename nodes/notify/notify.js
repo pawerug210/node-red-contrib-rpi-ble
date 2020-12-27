@@ -3,7 +3,7 @@ const bleDevicesManager = ble_core.bleDevicesManager();
 
 module.exports = function (RED) {
     function NotifyNode(config) {
-        RED.nodes.createNode(this, config);        
+        RED.nodes.createNode(this, config);
         var node = this;
 
         node.debug('Creating NotifyNode');
@@ -24,34 +24,55 @@ module.exports = function (RED) {
             }
         }
 
+        node.on('error', function () {
+            node.error('Node error occured');
+        })
+
         node.on('input', async function (msg) {
             node.debug('NotifyNode received input message: ' + JSON.stringify(msg));
 
             if ('disconnected' in msg) {
+                if (characteristic) {
+                    node.log('Removing callback for notifications on characteristic ' + await characteristic.getUUID());
+                    characteristic.removeListener('valuechanged', notify);
+                    characteristic = null;
+                }
                 node.status({});
                 node.send(msg);
                 return;
             }
 
-            characteristic = await bleDevicesManager.getCharacteristic(msg._deviceAddress,
-                msg._serviceUuid,
-                msg._characteristicUuid);
+            try {
+                characteristic = await bleDevicesManager.getCharacteristic(msg._deviceAddress,
+                    msg._serviceUuid,
+                    msg._characteristicUuid);
 
-            if (characteristic) {
-                if (!characteristic.listeners('valuechanged').includes(notify)) {
-                    node.log('Registering callback for notifications on characteristic ' + msg._characteristicUuid +
+                if (characteristic) {
+                    if (!characteristic.listeners('valuechanged').includes(notify)) {
+                        node.log('Registering callback for notifications on characteristic ' + msg._characteristicUuid +
+                            ' from service ' + msg._serviceUuid +
+                            ' from device ' + msg._deviceAddress);
+                        characteristic.on('valuechanged', notify);
+                    }
+                    node.debug('Callbacks number for notifications on characteristic ' + msg._characteristicUuid +
                         ' from service ' + msg._serviceUuid +
-                        ' from device ' + msg._deviceAddress);
-                    characteristic.on('valuechanged', notify);
+                        ' from device ' + msg._deviceAddress +
+                        ' is ' + characteristic.listenerCount('valuechanged'));
+                    var subscribeSuccess = await bleDevicesManager.startNotifications(characteristic);
+                    notifyStatus(subscribeSuccess);
+                    if (config.period > 0) {
+                        setTimeout(async function () {
+                            await bleDevicesManager.stopNotifications(characteristic);
+                            notifyStatus(false);
+                        }, config.period * 1000);
+                    }
                 }
-                var subscribeSuccess = await bleDevicesManager.startNotifications(characteristic);
-                notifyStatus(subscribeSuccess);
-                if (config.period > 0) {
-                    setTimeout(async function () {
-                        await bleDevicesManager.stopNotifications(characteristic);
-                        notifyStatus(false);
-                    }, config.period * 1000);
-                }
+            } catch (error) {
+                notifyStatus(false);
+                node.error('Subscribing notifications on characteristic ' + msg._characteristicUuid +
+                    ' from service ' + msg._serviceUuid +
+                    ' from device ' + msg._deviceAddress +
+                    ' returned error; ' + error);
             }
         })
 

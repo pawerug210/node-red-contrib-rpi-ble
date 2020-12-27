@@ -1,24 +1,28 @@
 const ble_core = require('./../../core/ble_core');
 const bleDevicesManager = ble_core.bleDevicesManager();
 
-module.exports = function(RED) {
+module.exports = function (RED) {
     function ServiceNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
 
         node.debug('Creating ServiceNode');
-        
+
         node.status({});
 
-		function serviceStatus(available) {
+        function serviceStatus(available) {
             if (available) {
                 node.status({ fill: 'green', shape: 'ring', text: 'available' });
             } else {
                 node.status({ fill: 'red', shape: 'ring', text: 'error' });
-            }          
+            }
         }
-        
-        node.on('input', async function(msg) {
+
+        node.on('error', function () {
+            node.error('Node error occured');
+        })
+
+        node.on('input', async function (msg) {
             node.debug('Received input message: ' + JSON.stringify(msg));
 
             if ('disconnected' in msg) {
@@ -27,18 +31,24 @@ module.exports = function(RED) {
                 return;
             }
 
-            var service = await bleDevicesManager.getService(msg._deviceAddress, config.uuid);
-            var serviceAvailable = service != null;
-            serviceStatus(serviceAvailable);
-            if (serviceAvailable) {
-                node.send({ payload: 1, 
-                    _deviceAddress: msg._deviceAddress, 
-                    _serviceUuid: config.uuid
-                });
+            try {
+                var service = await bleDevicesManager.getService(msg._deviceAddress, config.uuid);
+                var serviceAvailable = service != null;
+                serviceStatus(serviceAvailable);
+                if (serviceAvailable) {
+                    node.send({
+                        payload: 1,
+                        _deviceAddress: msg._deviceAddress,
+                        _serviceUuid: config.uuid
+                    });
+                }
+            } catch (error) {
+                serviceStatus(false);
+                node.error('Getting service ' + config.uuid + ' returned error; ' + error);
             }
         })
 
-        node.on('close', async function(removed, done) {
+        node.on('close', async function (removed, done) {
             if (removed) {
                 // This node has been disabled/deleted
                 node.debug('Node is closing as it got removed');

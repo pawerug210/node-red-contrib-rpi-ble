@@ -21,6 +21,7 @@ module.exports = function (RED) {
 
         function connectingStatus(success) {
             if (success) {
+                node.log('Device ' + deviceAddress + ' was connected');
                 node.status({ fill: 'green', shape: 'ring', text: 'connected' });
             } else {
                 node.status({ fill: 'red', shape: 'ring', text: 'error' });
@@ -30,11 +31,6 @@ module.exports = function (RED) {
                     disconnected: true
                 }]);
             }
-        }
-
-        function connected() {
-            node.log('Device ' + deviceAddress + ' was connected');
-            node.status({ fill: 'green', shape: 'ring', text: 'connected' });
         }
 
         function disconnected(status) {
@@ -47,21 +43,65 @@ module.exports = function (RED) {
             }]);
         }
 
+        function registerDisconnectListener(device) {
+            if (!device.listeners('disconnect').includes(disconnected)) {
+                node.log('Registering listener for disconnection event on device ' + deviceAddress);
+                device.once('disconnect', disconnected);
+            }
+            node.debug('Disconnection event listeners number for device ' + deviceAddress
+                + ' is ' + device.listenerCount('disconnect'));
+        }
+
+        node.on('error', function () {
+            node.error('Node error occured');
+        })
+
         node.on('input', async function (msg) {
             node.debug('DeviceNode received input message: ' + JSON.stringify(msg));
+
+            if (bleDevicesManager.isDeviceRegistered(deviceAddress)) {
+                try {
+                    var { device, connected } = await bleDevicesManager.getDevice(deviceAddress);
+                    if (!connected) {
+                        node.log('Device ' + deviceAddress + ' registered but not connected. Trying to connect...');
+                        connectingStart();
+                        await device.connect();
+                        registerDisconnectListener(device);
+                        connectingStatus(true);
+                        node.send([{
+                            payload: 1,
+                            _deviceAddress: deviceAddress
+                        }, null]);
+                    } else {
+                        node.log('Device ' + deviceAddress + ' already connected and registered');
+                    }
+                } catch (error) {
+                    node.error('Connection attempt to registered device ' + deviceAddress + ' returned error; ' + error);
+                    connectingStatus(false);
+                }
+
+                return;
+            }
+
+
             connectingStart();
-            var _ = await bleProvider.initializeAdapter();
-            var device = await bleProvider.waitDevice(deviceAddress,
-                connectionTimeoutInMs);
-            var connectionSuccess = device != null;
-            if (connectionSuccess) {
-                device.once('disconnect', disconnected);
-                connected();
-                await bleDevicesManager.registerDevice(device);
-                node.send([{
-                    payload: 1,
-                    _deviceAddress: deviceAddress
-                }, null]);
+            var connectionSuccess = false;
+            try {
+                var _ = await bleProvider.initializeAdapter();
+                var device = await bleProvider.waitDevice(deviceAddress,
+                    connectionTimeoutInMs);
+                connectionSuccess = device != null;
+                if (connectionSuccess) {
+                    registerDisconnectListener(device);
+                    await bleDevicesManager.registerDevice(device);
+                    node.send([{
+                        payload: 1,
+                        _deviceAddress: deviceAddress
+                    }, null]);
+                }
+            } catch (error) {
+                connectionSuccess = false;
+                node.error('Connection attempt to device ' + deviceAddress + ' returned error; ' + error);
             }
             connectingStatus(connectionSuccess);
         })
@@ -75,7 +115,7 @@ module.exports = function (RED) {
                 node.debug('Node is closing as it going to be restarted');
             }
             if (bleDevicesManager.isDeviceRegistered(deviceAddress)) {
-                var { device, _, _ } = await bleDevicesManager.getDevice(deviceAddress);
+                var { device } = await bleDevicesManager.getDevice(deviceAddress);
                 device.removeListener('disconnect', disconnected);
                 await bleDevicesManager.removeDevice(deviceAddress);
             }

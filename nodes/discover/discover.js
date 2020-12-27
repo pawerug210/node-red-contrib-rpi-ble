@@ -18,16 +18,26 @@ module.exports = function(RED) {
             node.status({});
             node.send({ payload: 1 });
         }
+
+        node.on('error', function() {
+            node.error('Node error occured');
+        })
         
         node.on('input', async function(msg) {
             node.debug('DiscoverNode received input message: ' + JSON.stringify(msg));
-            await bleProvider.initializeAdapter();
-            await bleProvider.startDiscovery();
-            discoverStart();
-            setTimeout(async function() {
-                await bleProvider.stopDiscovery();
+            try {
+                await bleProvider.initializeAdapter();
+                await bleProvider.startDiscovery();
+                discoverStart();
+                setTimeout(async function() {
+                    await bleProvider.stopDiscovery();
+                    discoverStop();
+                }, config.timeout * 1000);
+            }
+            catch (error) {
                 discoverStop();
-			}, config.timeout * 1000);
+                node.error('BLE adapter discovery starting error; ' + error);
+            }
         })
 
         node.on('close', async function(removed, done) {

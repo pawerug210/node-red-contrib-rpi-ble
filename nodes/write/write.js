@@ -18,8 +18,19 @@ module.exports = function (RED) {
 			}, delayInSeconds * 1000);
         }
 
+        node.on('error', function() {
+            node.error('Node error occured');
+        })
+
         node.on('input', async function (msg) {
             node.debug('WriteNode received input message: ' + JSON.stringify(msg));
+
+            if ('disconnected' in msg) {
+                characteristic = null;
+                node.status({});
+                node.send(msg);
+                return;
+            }
 
             if (characteristic) {
                 try {
@@ -38,7 +49,7 @@ module.exports = function (RED) {
                         msg._characteristicUuid);
                 } catch (error) {
                     node.error('Cannot write to unknown characteristic, initialize it first');
-                    node.error('Writing to uninitialized characteristic returned error: ' + error);
+                    node.log('Writing to uninitialized characteristic returned error: ' + error);
                 }
             }
         })
