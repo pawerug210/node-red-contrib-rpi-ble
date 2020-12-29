@@ -16,7 +16,7 @@ class BleDevice {
         return this._gatt;
     }
 
-    addCharacteristic(characteristic, serviceUuid) {
+    async addCharacteristic(characteristic, serviceUuid) {
         var key = this._createKey(await characteristic.getUUID(), serviceUuid);
         if (key in this._servicesCharacteristicsMap) {
             return;
@@ -41,7 +41,7 @@ class BleDevice {
     }
 
     async isConnected() {
-        await this._device.isConnected()
+        await this._device.isConnected();
     }
 
     _createKey(characteristicUuid, serviceUuid) {
@@ -135,7 +135,7 @@ class BleDevicesManager {
             var service = await bleDevice.getGatt().getPrimaryService(serviceUuid.toLowerCase());
             characteristic = await service.getCharacteristic(characteristicUuid.toLowerCase());
             if (characteristic) {
-                bleDevice.addCharacteristic(characteristic, serviceUuid)
+                await bleDevice.addCharacteristic(characteristic, serviceUuid);
                 return characteristic;
             }
         } catch (error) {
