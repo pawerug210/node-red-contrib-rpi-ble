@@ -61,12 +61,12 @@ module.exports = function (RED) {
 
             if (bleDevicesManager.isDeviceRegistered(deviceAddress)) {
                 try {
-                    var { device, connected } = await bleDevicesManager.getDevice(deviceAddress);
-                    if (!connected) {
+                    var bleDevice = await bleDevicesManager.getDevice(deviceAddress);
+                    if (!(await bleDevice.isConnected())) {
                         node.log('Device ' + deviceAddress + ' registered but not connected. Trying to connect...');
                         connectingStart();
-                        await device.connect();
-                        registerDisconnectListener(device);
+                        await bleDevice.connect();
+                        registerDisconnectListener(bleDevice.getDevice());
                         connectingStatus(true);
                         node.send([{
                             payload: 1,
@@ -115,8 +115,8 @@ module.exports = function (RED) {
                 node.debug('Node is closing as it going to be restarted');
             }
             if (bleDevicesManager.isDeviceRegistered(deviceAddress)) {
-                var { device } = await bleDevicesManager.getDevice(deviceAddress);
-                device.removeListener('disconnect', disconnected);
+                var bleDevice = await bleDevicesManager.getDevice(deviceAddress);
+                bleDevice.getDevice().removeListener('disconnect', disconnected);
                 await bleDevicesManager.removeDevice(deviceAddress);
             }
             done();

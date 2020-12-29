@@ -3,8 +3,49 @@ const logger = require('EasyLogger').logger;
 class BleDevice {
     constructor(device, gatt) {
         logger.debug('Creating BLE device');
-        this.device = device;
-        this.gatt = gatt;
+        this._device = device;
+        this._gatt = gatt;
+        this._servicesCharacteristicsMap = {};
+    }
+
+    getDevice() {
+        return this._device;
+    }
+
+    getGatt() {
+        return this._gatt;
+    }
+
+    addCharacteristic(characteristic, serviceUuid) {
+        var key = this._createKey(await characteristic.getUUID(), serviceUuid);
+        if (key in this._servicesCharacteristicsMap) {
+            return;
+        }
+        this._servicesCharacteristicsMap[key] = characteristic;
+    }
+
+    getCharacteristic(characteristicUuid, serviceUuid) {
+        var key = this._createKey(characteristicUuid, serviceUuid);
+        if (key in this._servicesCharacteristicsMap) {
+            return this._servicesCharacteristicsMap[key];
+        }
+        return null;
+    }
+
+    async connect() {
+        await this._device.connect();
+    }
+
+    async disconnect() {
+        await this._device.disconnect();
+    }
+
+    async isConnected() {
+        await this._device.isConnected()
+    }
+
+    _createKey(characteristicUuid, serviceUuid) {
+        return serviceUuid.toString().toLowerCase() + '_' + characteristicUuid.toString().toLowerCase();
     }
 }
 
@@ -39,12 +80,7 @@ class BleDevicesManager {
         logger.debug('Requesting device with address ' + address);
         if (this.isDeviceRegistered(address)) {
             logger.debug('Device ' + address + ' is registered in Device Manager');
-            var bleDevice = this._devices[address];
-            return {
-                device: bleDevice.device,
-                gatt: bleDevice.gatt,
-                connected: await bleDevice.device.isConnected()
-            };
+            return this._devices[address];
         }
         logger.warn('Trying to get device ' + address + ' which is not registered');
         throw new Error('Trying to get device ' + address + ' which is not registered');
@@ -57,9 +93,9 @@ class BleDevicesManager {
         if (this.isDeviceRegistered(address)) {
             logger.debug('Device ' + address + ' is registered in Device Manager');
             var bleDevice = this._devices[address];
-            if (await bleDevice.device.isConnected()) {
+            if (await bleDevice.isConnected()) {
                 logger.debug('Device ' + address + ' is connected');
-                await bleDevice.device.disconnect();
+                await bleDevice.disconnect();
             }
             logger.debug('Unregistering device ' + address + ' from Device Manager');
             delete this._devices[address];
@@ -68,20 +104,20 @@ class BleDevicesManager {
         logger.warn('Trying to disconnect device ' + address + ' which is not registered');
     }
 
-    async getService(deviceAddress, serviceUuid) {
-        var service = null;
+    async isServiceAvailable(deviceAddress, serviceUuid) {
+        var serviceAvailable = false;
 
         logger.debug('Requesting service ' + serviceUuid + ' from device ' + deviceAddress);
         try {
-            var { _, gatt, _ } = await this.getDevice(deviceAddress);
-            var serviceTmp = await gatt.getPrimaryService(serviceUuid.toLowerCase());
-            service = serviceTmp;
+            var bleDevice = await this.getDevice(deviceAddress);
+            var services = await bleDevice.getGatt().services();
+            serviceAvailable = serviceUuid.toLowerCase() in services;
         } catch (error) {
             logger.warn('Getting service ' + serviceUuid +
                 ' from device ' + deviceAddress +
                 ' returned error: ' + error);
         }
-        return service;
+        return serviceAvailable;
     }
 
     async getCharacteristic(deviceAddress, serviceUuid, characteristicUuid) {
@@ -91,10 +127,17 @@ class BleDevicesManager {
             ' service ' + serviceUuid +
             ' from device ' + deviceAddress);
         try {
-            var { _, gatt, _ } = await this.getDevice(deviceAddress);
-            var service = await gatt.getPrimaryService(serviceUuid.toLowerCase());
-            var characteristicTmp = await service.getCharacteristic(characteristicUuid.toLowerCase());
-            characteristic = characteristicTmp
+            var bleDevice = await this.getDevice(deviceAddress);
+            characteristic = bleDevice.getCharacteristic(characteristicUuid, serviceUuid);
+            if (characteristic) {
+                return characteristic;
+            }
+            var service = await bleDevice.getGatt().getPrimaryService(serviceUuid.toLowerCase());
+            characteristic = await service.getCharacteristic(characteristicUuid.toLowerCase());
+            if (characteristic) {
+                bleDevice.addCharacteristic(characteristic, serviceUuid)
+                return characteristic;
+            }
         } catch (error) {
             logger.warn('Getting characteristic ' + characteristicUuid +
                 ' from service ' + serviceUuid +
