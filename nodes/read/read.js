@@ -49,6 +49,7 @@ module.exports = function (RED) {
                         msg._serviceUuid,
                         msg._characteristicUuid);
                     if (config.read) {
+                        node.debug('Getting initial read for characteristic ' + msg._characteristicUuid);
                         msg.payload = await characteristic.readValue();
                         node.status({ fill: 'green', shape: 'ring', text: 'success' });
                         node.send(msg);

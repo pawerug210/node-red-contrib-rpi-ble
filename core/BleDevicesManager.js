@@ -111,7 +111,8 @@ class BleDevicesManager {
         try {
             var bleDevice = await this.getDevice(deviceAddress);
             var services = await bleDevice.getGatt().services();
-            serviceAvailable = serviceUuid.toLowerCase() in services;
+            logger.debug('Available services in device ' + deviceAddress + ': ' + services);
+            serviceAvailable = services.includes(serviceUuid.toLowerCase());
         } catch (error) {
             logger.warn('Getting service ' + serviceUuid +
                 ' from device ' + deviceAddress +
