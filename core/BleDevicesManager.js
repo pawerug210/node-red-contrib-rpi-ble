@@ -131,11 +131,17 @@ class BleDevicesManager {
             var bleDevice = await this.getDevice(deviceAddress);
             characteristic = bleDevice.getCharacteristic(characteristicUuid, serviceUuid);
             if (characteristic) {
+                logger.debug('Characteristic ' + characteristicUuid +
+                    ' from service ' + serviceUuid +
+                    ' is already registered');
                 return characteristic;
             }
             var service = await bleDevice.getGatt().getPrimaryService(serviceUuid.toLowerCase());
             characteristic = await service.getCharacteristic(characteristicUuid.toLowerCase());
             if (characteristic) {
+                logger.debug('Adding characteristic ' + characteristicUuid +
+                    ' from service ' + serviceUuid +
+                    ' to device ' + deviceAddress);
                 await bleDevice.addCharacteristic(characteristic, serviceUuid);
                 return characteristic;
             }
