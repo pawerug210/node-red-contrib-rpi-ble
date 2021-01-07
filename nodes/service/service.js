@@ -32,8 +32,7 @@ module.exports = function (RED) {
             }
 
             try {
-                var service = await bleDevicesManager.getService(msg._deviceAddress, config.uuid);
-                var serviceAvailable = service != null;
+                var serviceAvailable = await bleDevicesManager.isServiceAvailable(msg._deviceAddress, config.uuid);
                 serviceStatus(serviceAvailable);
                 if (serviceAvailable) {
                     node.send({
