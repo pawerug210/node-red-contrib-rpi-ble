@@ -28,7 +28,6 @@ module.exports = function (RED) {
             if ('disconnected' in msg) {
                 characteristic = null;
                 node.status({});
-                node.send(msg);
                 return;
             }
 

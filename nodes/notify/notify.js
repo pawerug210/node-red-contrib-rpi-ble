@@ -38,7 +38,6 @@ module.exports = function (RED) {
                     characteristic = null;
                 }
                 node.status({});
-                node.send(msg);
                 return;
             }
 
